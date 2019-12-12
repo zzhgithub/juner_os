@@ -1,0 +1,29 @@
+[package]
+name = "juner_os"
+version = "0.1.0"
+authors = ["zhouzihao <zhouzihao@baffedu.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+bootloader = { version = "0.8.3", features = ["map_physical_memory"]}
+volatile = "0.2.3"
+spin = "0.4.9"
+x86_64 = "0.7.7"
+pic8259_simple = "0.1.1"
+pc-keyboard = "0.3.1"
+linked_list_allocator = "0.6.4"
+
+
+[dependencies.lazy_static]
+version = "1.0"
+features = ["spin_no_std"]
+
+
+
+[profile.dev]
+panic = "abort"
+
+[profile.release]
+panic = "abort"
