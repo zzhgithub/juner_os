@@ -1,5 +1,6 @@
 use alloc::{collections::vec_deque::VecDeque, string::String, sync::Arc};
 use spin::Mutex;
+use crate::print;
 
 use lazy_static::lazy_static;
 
@@ -13,6 +14,7 @@ impl Stdin {
     // 进入输入缓存
     pub fn push(&self,c:char){
         self.buf.lock().push_back(c);
+        // todo
     }
 
     pub fn pop(&self) -> char{
@@ -22,6 +24,7 @@ impl Stdin {
                 Some(c) => return c,
                 None => {
                     // TODO 这里要等待 有人使用这个锁 
+                    print!("the loop！");
                 }
             }
         }

@@ -15,6 +15,7 @@ pub mod lisp;
 pub mod memory;
 pub mod allocator;
 pub mod stdio;
+pub mod serial;
 
 #[global_allocator]
 static ALLOCATOR: LockedHeap = LockedHeap::empty();
