@@ -1,13 +1,17 @@
-use crate::println;
 use x86_64::structures::idt::{InterruptDescriptorTable, InterruptStackFrame};
 
-use crate::print;
 use lazy_static::lazy_static;
 use pic8259_simple::ChainedPics;
 use spin;
+use crate::stdio;
+use crate::print;
+use crate::println;
 
 pub const PIC_1_OFFSET: u8 = 32;
 pub const PIC_2_OFFSET: u8 = PIC_1_OFFSET + 8;
+
+//删除枚举
+pub const BACK_SPACE: u8 = 8;
 
 use crate::gdt;
 
@@ -90,8 +94,6 @@ extern "x86-interrupt" fn timer_interrupt_handler(_stack_frame: &mut InterruptSt
 }
 
 
-use crate::lisp;
-//use crate::stdio;
 
 extern "x86-interrupt" fn keyboard_interrupt_handler(_stack_frame: &mut InterruptStackFrame) {
     use x86_64::instructions::port::Port;
@@ -113,11 +115,12 @@ extern "x86-interrupt" fn keyboard_interrupt_handler(_stack_frame: &mut Interrup
                 //TODO: we need a keypress buffer
                 // and the buffer is used by Lisper
                 DecodedKey::Unicode(character) => {
-                    //TODO 
-                    print!("{}",character);
+                    stdio::STDIN.push(character);
+                    // println!("INPUT-->{}",stdio::STDIN.to_string());
                 },
-                //print!("{}", character),
-                DecodedKey::RawKey(key) => print!("{:?}", key),
+                DecodedKey::RawKey(key) => {
+                    print!("{:?}", key);
+                },
             }
         }
     }    unsafe {
