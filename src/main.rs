@@ -76,7 +76,7 @@ pub fn init() {
 
 pub fn test(){
     // 测试输入打印循环
-    lisp::lisp_repl();
+    // lisp::lisp_repl();
     // use alloc::{boxed::Box, vec, vec::Vec, rc::Rc};
     //  // allocate a number on the heap
     //  let heap_value = Box::new(41);
