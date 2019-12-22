@@ -1,0 +1,1 @@
+~/rust-os-gdb/bin/rust-gdb "target/x86_64-juner_os/debug/juner_os" -ex "target remote :1234"
