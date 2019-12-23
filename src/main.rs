@@ -7,6 +7,7 @@ extern crate alloc;
 use core::panic::PanicInfo;
 use bootloader::{BootInfo, entry_point};
 use linked_list_allocator::LockedHeap;
+use log::*;
 
 mod vga_buffer;
 pub mod gdt;
@@ -66,6 +67,8 @@ pub fn init() {
     interrupts::init_idt();
     // 设置段表和 TSS
     gdt::init();
+    // init log
+    init_log();
     // PICS(中断控制器) 初始化
     unsafe { interrupts::PICS.lock().initialize() };
     // 允许时间中断
@@ -74,24 +77,27 @@ pub fn init() {
     println!("init end");
 }
 
-pub fn test(){
-    // 测试输入打印循环
-    // lisp::lisp_repl();
-    // use alloc::{boxed::Box, vec, vec::Vec, rc::Rc};
-    //  // allocate a number on the heap
-    //  let heap_value = Box::new(41);
-    //  println!("heap_value at {:p}", heap_value);
 
-    //  // create a dynamically sized vector
-    //  let mut vec = Vec::new();
-    //  for i in 0..500 {
-    //      vec.push(i);
-    //  }
-    //  println!("vec at {:p}", vec.as_slice());
-    //  // create a reference counted vector -> will be freed when count reaches 0
-    //  let reference_counted = Rc::new(vec![1, 2, 3]);
-    //  let cloned_reference = reference_counted.clone();
-    //  println!("current reference count is {}", Rc::strong_count(&cloned_reference));
-    //  core::mem::drop(reference_counted);
-    //  println!("reference count is {} now", Rc::strong_count(&cloned_reference));
+fn init_log(){
+    struct SimpleLogger;
+    impl Log for SimpleLogger {
+        fn enabled(&self,metadata: &Metadata)-> bool{
+            true
+        }
+
+        fn log(&self,record: &Record){
+            println!("[{:>5}] {}",record.level(),record.args());
+        }
+        
+        fn flush(&self){
+        }
+    }
+
+    static LOGGER: SimpleLogger = SimpleLogger;
+    set_logger(&LOGGER).unwrap();
+    set_max_level(LevelFilter::Trace);
+}
+
+
+pub fn test(){
 }

@@ -15,10 +15,10 @@ pic8259_simple = "0.1.1"
 uart_16550 = "0.2.0"
 pc-keyboard = "0.3.1"
 linked_list_allocator = "0.6.4"
-
+log = "0.4"
 
 [dependencies.lazy_static]
-version = "1.0"
+version = "1.4.0"
 features = ["spin_no_std"]
 
 
