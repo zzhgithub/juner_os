@@ -12,11 +12,11 @@ use log::*;
 mod vga_buffer;
 pub mod gdt;
 pub mod interrupts;
-pub mod lisp;
 pub mod memory;
 pub mod allocator;
 pub mod stdio;
 pub mod serial;
+pub mod mal;
 
 #[global_allocator]
 static ALLOCATOR: LockedHeap = LockedHeap::empty();
