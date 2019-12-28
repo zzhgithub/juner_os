@@ -7,6 +7,7 @@ use alloc::vec::Vec;
 use core::cell::RefCell;
 use hashbrown::HashMap;
 use crate::mal::reader::State::{Start,StateSym,Comment,Others};
+use crate::println;
 
 #[derive(Debug, Clone)]
 struct Reader {
@@ -87,7 +88,7 @@ fn tokenize(str: &str) -> Vec<String> {
                                 res.push(s);
                                 state = Start;
                             }
-                            Comment(mut s) => {
+                            Comment(s) => {
                                 let mut tmp = s.clone();
                                 tmp.push(t);
                                 state = Comment(tmp);
@@ -120,20 +121,20 @@ fn tokenize(str: &str) -> Vec<String> {
                     ';' => {
                         match pre_state {
                             Start => {
-                                state = Comment(String::from(";"));
+                                state = Comment(String::from(t.to_string()));
                             }
                             StateSym(s) => {
                                 res.push(s);
-                                state = Comment(String::from(";"));
+                                state = Comment(String::from(t.to_string()));
                             }
-                            Comment(mut s) => {
+                            Comment(s) => {
                                 let mut tmp = s.clone();
                                 tmp.push(t);
                                 state = Comment(tmp);
                             }
                             Others(s) => {
                                 res.push(s);
-                                state = Comment(String::from(";"));
+                                state = Comment(String::from(t.to_string()));
                             }
                         }
                     }
@@ -146,12 +147,12 @@ fn tokenize(str: &str) -> Vec<String> {
                                 res.push(s);
                                 state = Others(t.to_string());
                             }
-                            Comment(mut s) => {
+                            Comment(s) => {
                                 let mut tmp = s.clone();
                                 tmp.push(t);
                                 state = Comment(tmp);
                             }
-                            Others(mut s) => {
+                            Others(s) => {
                                 let mut tmp = s.clone();
                                 tmp.push(t);
                                 state = Others(tmp);
@@ -180,5 +181,11 @@ fn tokenize(str: &str) -> Vec<String> {
         }
     }
     // 设置成结束？？ 不需要了
-    res
+    res.reverse();
+    res.iter().map(|s| s.chars().rev().collect::<String>()).collect()
+}
+
+pub fn read_str(str: String) {
+    let tokens = tokenize(&str);
+    println!("tokens: {:?}", tokens);
 }

@@ -100,4 +100,8 @@ fn init_log(){
 
 
 pub fn test(){
+    use crate::mal::reader::read_str;
+    use alloc::string::{String,ToString};
+    read_str("(+ 1 (- 5 3))
+    ;;test add 123 apply!".to_string());
 }
