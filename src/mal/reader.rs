@@ -8,6 +8,7 @@ use core::cell::RefCell;
 use hashbrown::HashMap;
 use crate::mal::reader::State::{Start,StateSym,Comment,Others};
 use crate::println;
+use log::*;
 
 #[derive(Debug, Clone)]
 struct Reader {
@@ -47,7 +48,7 @@ enum State{
 // token化
 fn tokenize(str: &str) -> Vec<String> {
     let mut res = Vec::new();
-    let mut code = String::from(str);
+    let mut code = String::from(str).chars().rev().collect::<String>();
     let mut state:State = Start;
     loop{
         let pre_state = state.clone();
@@ -139,6 +140,7 @@ fn tokenize(str: &str) -> Vec<String> {
                         }
                     }
                     _ => {
+                        trace!("Run in Other: {}",t);
                         match pre_state {
                             Start => {
                                 state = Others(t.to_string());
@@ -181,8 +183,7 @@ fn tokenize(str: &str) -> Vec<String> {
         }
     }
     // 设置成结束？？ 不需要了
-    res.reverse();
-    res.iter().map(|s| s.chars().rev().collect::<String>()).collect()
+    res
 }
 
 pub fn read_str(str: String) {
