@@ -1,19 +1,19 @@
-use crate::mal::types::MalVal::{Bool, Int, List, Nil, Str, Sym, Vector};
-use crate::mal::types::MalVal;
-use crate::mal::types::MalErr::ErrString;
-use crate::mal::types::MalErr;
-use crate::mal::types::MalRet;
-use crate::mal::types::error;
 use crate::list;
-use crate::vector;
+use crate::mal::reader::State::{Comment, Others, Start, StateSym};
+use crate::mal::types::error;
+use crate::mal::types::MalErr;
+use crate::mal::types::MalErr::ErrString;
+use crate::mal::types::MalRet;
+use crate::mal::types::MalVal;
+use crate::mal::types::MalVal::{Bool, Int, List, Nil, Str, Sym, Vector};
+use crate::println;
 use crate::vec;
+use crate::vector;
 use alloc::rc::Rc;
-use alloc::string::{String,ToString};
+use alloc::string::{String, ToString};
 use alloc::vec::Vec;
 use core::cell::RefCell;
 use hashbrown::HashMap;
-use crate::mal::reader::State::{Start,StateSym,Comment,Others};
-use crate::println;
 use log::*;
 
 #[derive(Debug, Clone)]
@@ -43,25 +43,25 @@ impl Reader {
 }
 
 // token 识别状态
-#[derive(Debug,Clone)]
-enum State{
-    Start, // 开始状态
+#[derive(Debug, Clone)]
+enum State {
+    Start,            // 开始状态
     StateSym(String), // 特殊符号
-    Comment(String), //注释
-    Others(String)
+    Comment(String),  //注释
+    Others(String),
 }
 
 // token化
 fn tokenize(str: &str) -> Vec<String> {
     let mut res = Vec::new();
     let mut code = String::from(str).chars().rev().collect::<String>();
-    let mut state:State = Start;
-    loop{
+    let mut state: State = Start;
+    loop {
         let pre_state = state.clone();
         match code.pop() {
-            Some(t) =>{
+            Some(t) => {
                 match t {
-                    '`' | '\''| '~' | '^' | '@' | '[' | ']' | '(' | ')' | '{' | '}' => {
+                    '`' | '\'' | '~' | '^' | '@' | '[' | ']' | '(' | ')' | '{' | '}' => {
                         match pre_state {
                             Start => {
                                 state = StateSym(t.to_string());
@@ -69,7 +69,7 @@ fn tokenize(str: &str) -> Vec<String> {
                             StateSym(s) => {
                                 if s == "~" && t == '@' {
                                     res.push(String::from("~@"));
-                                }else{
+                                } else {
                                     res.push(s);
                                     res.push(t.to_string());
                                     state = Start;
@@ -86,7 +86,7 @@ fn tokenize(str: &str) -> Vec<String> {
                             }
                         }
                     }
-                    ' '=>{
+                    ' ' => {
                         match pre_state {
                             Start => {
                                 // do nothing
@@ -106,7 +106,7 @@ fn tokenize(str: &str) -> Vec<String> {
                             }
                         }
                     }
-                    '\n'=>{
+                    '\n' => {
                         match pre_state {
                             Start => {
                                 // do nothing
@@ -125,28 +125,26 @@ fn tokenize(str: &str) -> Vec<String> {
                             }
                         }
                     }
-                    ';' => {
-                        match pre_state {
-                            Start => {
-                                state = Comment(String::from(t.to_string()));
-                            }
-                            StateSym(s) => {
-                                res.push(s);
-                                state = Comment(String::from(t.to_string()));
-                            }
-                            Comment(s) => {
-                                let mut tmp = s.clone();
-                                tmp.push(t);
-                                state = Comment(tmp);
-                            }
-                            Others(s) => {
-                                res.push(s);
-                                state = Comment(String::from(t.to_string()));
-                            }
+                    ';' => match pre_state {
+                        Start => {
+                            state = Comment(String::from(t.to_string()));
                         }
-                    }
+                        StateSym(s) => {
+                            res.push(s);
+                            state = Comment(String::from(t.to_string()));
+                        }
+                        Comment(s) => {
+                            let mut tmp = s.clone();
+                            tmp.push(t);
+                            state = Comment(tmp);
+                        }
+                        Others(s) => {
+                            res.push(s);
+                            state = Comment(String::from(t.to_string()));
+                        }
+                    },
                     _ => {
-                        trace!("Run in Other: {}",t);
+                        trace!("Run in Other: {}", t);
                         match pre_state {
                             Start => {
                                 state = Others(t.to_string());
@@ -174,10 +172,9 @@ fn tokenize(str: &str) -> Vec<String> {
             }
         }
     }
-     // 应该把当前状态没有识别结束的值 保存到vec中
+    // 应该把当前状态没有识别结束的值 保存到vec中
     match state {
-        Start => {
-        }
+        Start => {}
         StateSym(s) => {
             res.push(s);
         }
@@ -191,13 +188,28 @@ fn tokenize(str: &str) -> Vec<String> {
     res
 }
 
+fn is_numbers(s: &str) -> bool {
+    
+}
 
-fn  read_form(rdr:&mut Reader) ->MalRet {
-	let token = rdr.peek()?;
+fn read_atom(rdr: &mut Reader) -> MalRet {
+    let token = rdr.next()?;
+    match &token[..] {
+        "nil" => Ok(Nil),
+        "false" => Ok(Bool(false)),
+        "true" => Ok(Bool(true)),
+        _ => {
+
+        }
+    }
+}
+
+fn read_form(rdr: &mut Reader) -> MalRet {
+    let token = rdr.peek()?;
     match &token[..] {
         "'" => {
             let _ = rdr.next();
-            Ok(list![Sym("quote".to_string()),read_form(rdr)?])
+            Ok(list![Sym("quote".to_string()), read_form(rdr)?])
         }
         //todo
         _ => {
@@ -207,14 +219,14 @@ fn  read_form(rdr:&mut Reader) ->MalRet {
     }
 }
 
-pub fn read_str(str: String) -> MalRet{
+pub fn read_str(str: String) -> MalRet {
     let tokens = tokenize(&str);
-	println!("tokens: {:?}", tokens);
-	if tokens.len() == 0 {
-		return error("no input");
-	}
-	read_form(&mut Reader{
-		pos: 0,
-		tokens: tokens
-	})
+    println!("tokens: {:?}", tokens);
+    if tokens.len() == 0 {
+        return error("no input");
+    }
+    read_form(&mut Reader {
+        pos: 0,
+        tokens: tokens,
+    })
 }
