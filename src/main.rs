@@ -2,6 +2,7 @@
 #![no_main]
 #![feature(abi_x86_interrupt)]
 #![feature(alloc_error_handler)]
+#![feature(box_syntax)]
 extern crate alloc;
 
 use core::panic::PanicInfo;

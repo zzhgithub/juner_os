@@ -1,5 +1,6 @@
 use alloc::rc::Rc;
-use alloc::string::String;
+use alloc::string::{String,ToString};
+use crate::mal::types::MalErr::ErrString;
 use alloc::vec::Vec;
 use core::cell::RefCell;
 use hashbrown::HashMap;
@@ -37,3 +38,43 @@ pub enum MalErr {
 pub type MalArgs = Vec<MalVal>;
 // Mal 出参结构
 pub type MalRet = Result<MalVal, MalErr>;
+
+#[macro_export]
+macro_rules! list {
+    ($seq:expr) => {{
+      List(Rc::new($seq),Rc::new(Nil))
+    }};
+    [$($args:expr),*] => {{
+      let v: Vec<MalVal> = vec![$($args),*];
+      List(Rc::new(v),Rc::new(Nil))
+    }}
+}
+
+#[macro_export]
+macro_rules! vector {
+    ($seq:expr) => {{
+      Vector(Rc::new($seq),Rc::new(Nil))
+    }};
+    [$($args:expr),*] => {{
+      let v: Vec<MalVal> = vec![$($args),*];
+      Vector(Rc::new(v),Rc::new(Nil))
+    }}
+}
+
+#[macro_export]
+macro_rules! vec {
+    ($elem:expr;$n:expr) => {
+        $crate::alloc::vec::from_elem($elem, n)
+    };
+    ($($x:expr),*) => {
+        <[_]>::into_vec(box[$($x),*])
+    };
+    ($($x:expr,)*) => {$crate::vec![$($x),*]}
+}
+
+// type utility functions
+  
+//抛出错误
+pub fn error(s: &str) -> MalRet {
+    Err(ErrString(s.to_string()))
+}

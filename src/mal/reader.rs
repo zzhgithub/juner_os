@@ -1,6 +1,12 @@
 use crate::mal::types::MalVal::{Bool, Int, List, Nil, Str, Sym, Vector};
+use crate::mal::types::MalVal;
 use crate::mal::types::MalErr::ErrString;
 use crate::mal::types::MalErr;
+use crate::mal::types::MalRet;
+use crate::mal::types::error;
+use crate::list;
+use crate::vector;
+use crate::vec;
 use alloc::rc::Rc;
 use alloc::string::{String,ToString};
 use alloc::vec::Vec;
@@ -182,11 +188,33 @@ fn tokenize(str: &str) -> Vec<String> {
             res.push(s);
         }
     }
-    // 设置成结束？？ 不需要了
     res
 }
 
-pub fn read_str(str: String) {
+
+fn  read_form(rdr:&mut Reader) ->MalRet {
+	let token = rdr.peek()?;
+    match &token[..] {
+        "'" => {
+            let _ = rdr.next();
+            Ok(list![Sym("quote".to_string()),read_form(rdr)?])
+        }
+        //todo
+        _ => {
+            //临时测试代码
+            error("tmp")
+        }
+    }
+}
+
+pub fn read_str(str: String) -> MalRet{
     let tokens = tokenize(&str);
-    println!("tokens: {:?}", tokens);
+	println!("tokens: {:?}", tokens);
+	if tokens.len() == 0 {
+		return error("no input");
+	}
+	read_form(&mut Reader{
+		pos: 0,
+		tokens: tokens
+	})
 }
