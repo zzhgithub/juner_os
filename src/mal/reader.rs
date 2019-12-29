@@ -13,6 +13,7 @@ use alloc::rc::Rc;
 use alloc::string::{String, ToString};
 use alloc::vec::Vec;
 use core::cell::RefCell;
+use core::fmt;
 use hashbrown::HashMap;
 use log::*;
 
@@ -188,8 +189,14 @@ fn tokenize(str: &str) -> Vec<String> {
     res
 }
 
-fn is_numbers(s: &str) -> bool {
-    
+// 判断一个字符串都是数字
+fn is_numbers(s: &String) -> bool {
+    for r in s.chars() {
+        if !r.is_ascii_digit(){
+            return false;
+        }
+    }
+    true
 }
 
 fn read_atom(rdr: &mut Reader) -> MalRet {
@@ -199,7 +206,18 @@ fn read_atom(rdr: &mut Reader) -> MalRet {
         "false" => Ok(Bool(false)),
         "true" => Ok(Bool(true)),
         _ => {
-
+            if is_numbers(&token) {
+                Ok(Int(token.parse().unwrap()))
+                // fixme 这里要失败字符串 再rust中使用的时候 必须加速这个\" 就很难受
+                // TODO 而且上方也没有正常的识别出来
+            } else if token.starts_with('\"') && token.ends_with('\"') { 
+                // fixme 这里要转义字符对转义字符进行判断
+                Ok(Str(token[1..token.len() - 1].to_string()))
+            } else if token.starts_with(":") {
+                Ok(Str(String::from("\u{29e}")+&token[1..token.len()]))
+            } else {
+                Ok(Sym(token.to_string()))
+            }
         }
     }
 }
@@ -212,10 +230,7 @@ fn read_form(rdr: &mut Reader) -> MalRet {
             Ok(list![Sym("quote".to_string()), read_form(rdr)?])
         }
         //todo
-        _ => {
-            //临时测试代码
-            error("tmp")
-        }
+        _ => read_atom(rdr),
     }
 }
 
