@@ -6,6 +6,7 @@ use crate::mal::types::MalErr::ErrString;
 use crate::mal::types::MalRet;
 use crate::mal::types::MalVal;
 use crate::mal::types::MalVal::{Bool, Int, List, Nil, Str, Sym, Vector};
+use crate::mal::types::hash_map;
 use crate::println;
 use crate::vec;
 use crate::vector;
@@ -16,6 +17,7 @@ use core::cell::RefCell;
 use core::fmt;
 use hashbrown::HashMap;
 use log::*;
+use crate::format;
 
 #[derive(Debug, Clone)]
 struct Reader {
@@ -214,11 +216,35 @@ fn read_atom(rdr: &mut Reader) -> MalRet {
                 // fixme 这里要转义字符对转义字符进行判断
                 Ok(Str(token[1..token.len() - 1].to_string()))
             } else if token.starts_with(":") {
-                Ok(Str(String::from("\u{29e}")+&token[1..token.len()]))
+                Ok(Str(format!("\u{29e}{}",&token[1..])))
+                // Ok(Str(String::from("\u{29e}")+&token[1..token.len()]))
             } else {
                 Ok(Sym(token.to_string()))
             }
         }
+    }
+}
+
+// 读符合 并且识别两个括号
+fn read_seq(rdr: &mut Reader, end: &str) -> MalRet {
+    let mut seq: Vec<MalVal> = vec![];
+    rdr.next()?;
+    loop {
+        let token = match rdr.peek() {
+            Ok(t) => t,
+            Err(_) => return error(&format!("expected '{}', got EOF", end)),
+        };
+        if token == end {
+            break;
+        }
+        seq.push(read_form(rdr)?)
+    }
+    let _ = rdr.next();
+    match end {
+        ")" => Ok(list!(seq)),
+        "]" => Ok(vector!(seq)),
+        "}" => hash_map(seq),
+        _ => error("read_seq unknown end value"),
     }
 }
 
@@ -229,7 +255,33 @@ fn read_form(rdr: &mut Reader) -> MalRet {
             let _ = rdr.next();
             Ok(list![Sym("quote".to_string()), read_form(rdr)?])
         }
-        //todo
+        "`" => {
+            let _ = rdr.next();
+            Ok(list![Sym("quasiquote".to_string()), read_form(rdr)?])
+        }
+        "~" => {
+            let _ = rdr.next();
+            Ok(list![Sym("unquote".to_string()), read_form(rdr)?])
+        }
+        "~@" => {
+            let _ = rdr.next();
+            Ok(list![Sym("splice-unquote".to_string()), read_form(rdr)?])
+        }
+        "^" => {
+            let _ = rdr.next();
+            let meta = read_form(rdr)?;
+            Ok(list![Sym("with-meta".to_string()), read_form(rdr)?, meta])
+        }
+        "@" => {
+            let _ = rdr.next();
+            Ok(list![Sym("deref".to_string()), read_form(rdr)?])
+        }
+        ")" => error("unexpected ')'"),
+        "(" => read_seq(rdr, ")"),
+        "]" => error("unexpected ']'"),
+        "[" => read_seq(rdr, "]"),
+        "}" => error("unexpected '}'"),
+        "{" => read_seq(rdr, "}"),
         _ => read_atom(rdr),
     }
 }

@@ -4,6 +4,8 @@ use crate::mal::types::MalErr::ErrString;
 use alloc::vec::Vec;
 use core::cell::RefCell;
 use hashbrown::HashMap;
+use crate::mal::types::MalVal::{Hash,Str,Nil};
+use core::fmt;
 
 #[derive(Debug,Clone)]
 pub enum MalVal{
@@ -72,9 +74,46 @@ macro_rules! vec {
     ($($x:expr,)*) => {$crate::vec![$($x),*]}
 }
 
+#[macro_export]
+macro_rules! format {
+    ($($arg:tt)*) => ($crate::alloc::fmt::format(format_args!($($arg)*)))
+}
+
 // type utility functions
   
 //抛出错误
 pub fn error(s: &str) -> MalRet {
     Err(ErrString(s.to_string()))
+}
+
+// 把参数 变成hashmap
+pub fn _assoc(mut hm: HashMap<String, MalVal>, kvs: MalArgs) -> MalRet {
+    if kvs.len() % 2 != 0 {
+        return error("odd number of elements");
+    }
+    let mut itre = kvs.iter();
+    loop{
+        let k = itre.next();
+        match k {
+            Some(Str(s))=>{
+                match itre.next() {
+                    Some(v) => {
+                        hm.insert(s.to_string(), v.clone());
+                    },
+                    // 这里应该永远也不会发生
+                    None => return error("key to value,vlaue is not a MalVal"),
+                }
+                
+            },
+            None => break,
+            _ => return error("key is not string"),
+        }
+    }
+    Ok(Hash(Rc::new(hm), Rc::new(Nil)))
+}
+
+// 创建hashmap
+pub fn hash_map(kvs: MalArgs) -> MalRet {
+    let hm: HashMap<String, MalVal> = HashMap::new();
+    _assoc(hm, kvs)
 }
