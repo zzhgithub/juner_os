@@ -6,6 +6,7 @@ use core::cell::RefCell;
 use hashbrown::HashMap;
 use crate::mal::types::MalVal::{Hash,Str,Nil,Func,Bool,Int,Sym,List,Vector,MalFunc,Atom};
 use core::fmt;
+use crate::mal::env::Env;
 
 #[derive(Debug,Clone)]
 pub enum MalVal{
@@ -19,9 +20,9 @@ pub enum MalVal{
     Hash(Rc<HashMap<String,MalVal>>,Rc<MalVal>), // hashMap 类型
     Func(fn(MalArgs) -> MalRet,Rc<MalVal>), //函数 相当于 lamdba (x)-> M
     MalFunc {
-        // eval: fn(ast: MalVal, env: Env) -> MalRet,
+        eval: fn(ast: MalVal, env: Env) -> MalRet,
         ast: Rc<MalVal>, // 函数 抽象语法树
-        // env: Env,    // repl 环境
+        env: Env,    // repl 环境
         params: Rc<MalVal>,  // 参数值  TODO： 其实可以单值然后用柯里化
         is_macro: bool,    // 是否是宏
         meta: Rc<MalVal>,   // 元数据
