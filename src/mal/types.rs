@@ -1,6 +1,6 @@
 use alloc::rc::Rc;
 use alloc::string::{String,ToString};
-use crate::mal::types::MalErr::ErrString;
+use crate::mal::types::MalErr::{ErrString,ErrMalVal};
 use alloc::vec::Vec;
 use core::cell::RefCell;
 use hashbrown::HashMap;
@@ -84,6 +84,14 @@ macro_rules! format {
 //抛出错误
 pub fn error(s: &str) -> MalRet {
     Err(ErrString(s.to_string()))
+}
+
+//格式化错误输出
+pub fn format_error(e: MalErr) -> String {
+    match e {
+        ErrString(s) => s.clone(),
+        ErrMalVal(mv) => mv.pr_str(true),
+    }
 }
 
 // 把参数 变成hashmap

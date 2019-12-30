@@ -101,9 +101,7 @@ fn init_log(){
 
 
 pub fn test(){
-    use crate::mal::reader::read_str;
-    use alloc::string::{String,ToString};
+    use crate::mal::rep;
     // FIXME: 这里的注释识别有一些问题！！！
-    read_str("(+ 1 (- 5 3))
-    ;test add 123 apply!".to_string());
+   rep("(+ 1 (- 5 3))");
 }
