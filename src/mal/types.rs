@@ -4,7 +4,7 @@ use crate::mal::types::MalErr::{ErrString,ErrMalVal};
 use alloc::vec::Vec;
 use core::cell::RefCell;
 use hashbrown::HashMap;
-use crate::mal::types::MalVal::{Hash,Str,Nil};
+use crate::mal::types::MalVal::{Hash,Str,Nil,Func,Bool,Int,Sym,List,Vector,MalFunc,Atom};
 use core::fmt;
 
 #[derive(Debug,Clone)]
@@ -111,7 +111,6 @@ pub fn _assoc(mut hm: HashMap<String, MalVal>, kvs: MalArgs) -> MalRet {
                     // 这里应该永远也不会发生
                     None => return error("key to value,vlaue is not a MalVal"),
                 }
-                
             },
             None => break,
             _ => return error("key is not string"),
@@ -124,4 +123,29 @@ pub fn _assoc(mut hm: HashMap<String, MalVal>, kvs: MalArgs) -> MalRet {
 pub fn hash_map(kvs: MalArgs) -> MalRet {
     let hm: HashMap<String, MalVal> = HashMap::new();
     _assoc(hm, kvs)
+}
+
+// 创建一个函数
+pub fn func(f: fn(MalArgs) -> MalRet) -> MalVal {
+    Func(f, Rc::new(Nil))
+}
+
+// 实现比较方法 判断两个 MalVal 是否相等
+impl PartialEq for MalVal {
+    fn eq(&self, other: &MalVal) -> bool {
+        match (self, other) {
+            (Nil, Nil) => true,
+            (Bool(ref a), Bool(ref b)) => a == b,
+            (Int(ref a), Int(ref b)) => a == b,
+            (Str(ref a), Str(ref b)) => a == b,
+            (Sym(ref a), Sym(ref b)) => a == b,
+            (List(ref a, _), List(ref b, _))
+            | (Vector(ref a, _), Vector(ref b, _))
+            | (List(ref a, _), Vector(ref b, _))
+            | (Vector(ref a, _), List(ref b, _)) => a == b,
+            (Hash(ref a, _), Hash(ref b, _)) => a == b,
+            (MalFunc { .. }, MalFunc { .. }) => false, // 两个函数永远也不能相同！
+            _ => false,
+        }
+    }
 }
