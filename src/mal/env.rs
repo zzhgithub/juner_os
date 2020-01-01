@@ -2,12 +2,14 @@ use alloc::rc::Rc;
 use alloc::string::{String,ToString};
 use core::cell::RefCell;
 use hashbrown::HashMap;
+use alloc::vec::Vec;
 
 use crate::mal::types::MalErr::ErrString;
-use crate::mal::types::MalVal::{List, Nil, Sym, Vector};
+use crate::mal::types::MalVal::{List, Nil, Sym, Vector,Func,Int};
 use crate::mal::types::{error, MalErr, MalRet, MalVal};
 
 use crate::format;
+use crate::list;
 
 #[derive(Debug)]
 pub struct EnvSturct {
@@ -52,4 +54,37 @@ pub fn env_get(env: &Env, key: &MalVal) -> MalRet {
 // 在环境中绑定符号
 pub fn env_sets(env:&Env,key:&str,val:MalVal){
     env.data.borrow_mut().insert(key.to_string(),val);
+}
+
+
+// todo 理解这些代码什么意思？
+pub fn env_set(env: &Env, key: MalVal, val: MalVal) -> MalRet {
+    match key {
+        Sym(ref s) => {
+            env.data.borrow_mut().insert(s.to_string(), val.clone());
+            Ok(val)
+        }
+        _ => error("Env.set called with non-Str"),
+    }
+}
+
+pub fn env_bind(outer: Option<Env>, mbinds: MalVal, exprs: Vec<MalVal>) -> Result<Env, MalErr> {
+    let env = env_new(outer);
+    match mbinds {
+        List(binds, _) | Vector(binds, _) => {
+            for (i, b) in binds.iter().enumerate() {
+                match b {
+                    Sym(s) if s == "&" => {
+                        env_set(&env, binds[i + 1].clone(), list!(exprs[i..].to_vec()))?;
+                        break;
+                    }
+                    _ => {
+                        env_set(&env, b.clone(), exprs[i].clone())?;
+                    }
+                }
+            }
+            Ok(env)
+        }
+        _ => Err(ErrString("env_bind binds not List/Vector".to_string())),
+    }
 }

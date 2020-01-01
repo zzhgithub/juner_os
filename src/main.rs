@@ -102,6 +102,25 @@ fn init_log(){
 
 pub fn test(){
     use crate::mal::rep;
-    // FIXME: 这里的注释识别有一些问题！！！
-   rep("(+ 1 (- 5 3))");
+    use crate::mal::env::Env;
+    use crate::mal::env::{env_new,env_sets};
+    use crate::mal::types::MalArgs;
+    use crate::mal::types::func;// 这个方法可以用 rust的闭包生成一个lisp的函数
+    use crate::mal::types::format_error;
+    use crate::mal::int_op;
+    
+    // FIXME: 这里的注释识别有一些问题！！！ 不能正常的识别双引号
+    let kernel_env:Env = env_new(None);
+    
+    // 初始化几个函数(四则运算)
+    env_sets(&kernel_env, "+", func(|a: MalArgs| int_op(|i, j| i + j, a)));
+    env_sets(&kernel_env, "-", func(|a: MalArgs| int_op(|i, j| i - j, a)));
+    env_sets(&kernel_env, "*", func(|a: MalArgs| int_op(|i, j| i * j, a)));
+    env_sets(&kernel_env, "/", func(|a: MalArgs| int_op(|i, j| i / j, a)));
+    
+    match rep("(+ 1 (- 5 3))",&kernel_env){
+        Ok(out) => println!("{}",out),
+        Err(e) => println!("{}",format_error(e)),
+    }
+    
 }

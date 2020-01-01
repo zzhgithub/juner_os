@@ -6,7 +6,7 @@ use core::cell::RefCell;
 use hashbrown::HashMap;
 use crate::mal::types::MalVal::{Hash,Str,Nil,Func,Bool,Int,Sym,List,Vector,MalFunc,Atom};
 use core::fmt;
-use crate::mal::env::Env;
+use crate::mal::env::{Env,env_bind};
 
 #[derive(Debug,Clone)]
 pub enum MalVal{
@@ -149,4 +149,27 @@ impl PartialEq for MalVal {
             _ => false,
         }
     }
+}
+
+impl MalVal {
+
+    pub fn apply(&self, args: MalArgs) -> MalRet {
+        match *self {
+            Func(f, _) => f(args),
+            MalFunc {
+                eval,
+                ref ast,
+                ref env,
+                ref params,
+                ..
+            } => {
+                let a = &**ast;
+                let p = &**params;
+                let fn_env = env_bind(Some(env.clone()), p.clone(), args)?;
+                Ok(eval(a.clone(), fn_env)?)
+            }
+            _ => error("attempt to call non-function"),
+        }
+    }
+    //todo
 }
