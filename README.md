@@ -31,7 +31,7 @@ cargo xrun
 
 
 ## Lisp 的语法:
-- todo 
+- [语法](./grammar.md)
 
 ### BNF
 > 在双引号中的字(“word”)代表着这些字符本身。而double_quote用来代表双引号。  
@@ -64,6 +64,14 @@ empty ::= " "
 
 TODO!!问题上面的定义不能很好的识别出字符串作为元素!!!
 
+
+## rust 镶嵌lisp
+## lisp与rust交互数据
+
+## 核心库？
+
+## 是否可以用lisp中的进程管理和多线程实现一个打scanf方法
+疑问？需要使用syscall和信号量等概念吗？
 
 # 参考资料
 - (Lisp Bnf)[https://iamwilhelm.github.io/bnf-examples/lisp]

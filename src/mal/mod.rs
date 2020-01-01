@@ -14,7 +14,7 @@ pub mod printer;
 use crate::mal::types::MalVal::{List,Sym,Str,Vector,Hash,Nil,Int};
 use crate::mal::types::{error,MalRet,MalArgs,MalVal,MalErr};
 use crate::mal::env::Env;
-use crate::mal::env::env_get;
+use crate::mal::env::{env_get,env_set,env_new};
 use crate::vec;
 use crate::vector;
 use crate::list;
@@ -42,11 +42,42 @@ fn eval(ast: MalVal, env: Env) -> MalRet {
             let a0 = &l[0];
             match a0 {
                 Sym(ref a0sym) if a0sym == "def!" => {
-                    //todo 这里要处理定义一个函数的问题
-                    Ok(Nil)
+                    env_set(&env, l[1].clone(), eval(l[2].clone(), env.clone())?)
                 },
                 Sym(ref a0sym) if a0sym == "let*" => {
-                    Ok(Nil)
+                    // 对let* 语法进行支持
+                    let let_env = env_new(Some(env.clone()));
+                    let (a1,a2) = (l[1].clone(),l[2].clone());
+                    match a1 {
+                        List(ref binds,_) | Vector(ref binds,_) => {
+                            let mut binds_iter = binds.iter();
+                            loop {
+                                match binds_iter.next(){
+                                    Some(b) =>{
+                                        match binds_iter.next() {
+                                            Some(e) => {
+                                                let _ = env_set(
+                                                    &let_env,
+                                                    b.clone(),
+                                                    eval(e.clone(), let_env.clone())?
+                                                );
+                                            },
+                                            None => {
+                                                return error("let* with non-Sym binding");
+                                            }
+                                        }
+                                    },
+                                    None => {
+                                        break;
+                                    },
+                                }
+                            }
+                        },
+                        _ => {
+                            return error("let* with non-List bindings");
+                        },
+                    }
+                    eval(a2, let_env)
                 }
                 // todo 这里实现其他的符号逻辑
                 _ => match eval_ast(&ast, &env)? {

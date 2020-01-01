@@ -118,7 +118,7 @@ pub fn test(){
     env_sets(&kernel_env, "*", func(|a: MalArgs| int_op(|i, j| i * j, a)));
     env_sets(&kernel_env, "/", func(|a: MalArgs| int_op(|i, j| i / j, a)));
     
-    match rep("(+ 1 (- 5 3))",&kernel_env){
+    match rep("(let* (p (+ 2 3) q (+ 2 p)) (+ p q))",&kernel_env){
         Ok(out) => println!("{}",out),
         Err(e) => println!("{}",format_error(e)),
     }

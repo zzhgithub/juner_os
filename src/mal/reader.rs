@@ -147,7 +147,7 @@ fn tokenize(str: &str) -> Vec<String> {
                         }
                     },
                     _ => {
-                        trace!("Run in Other: {}", t);
+                        // trace!("Run in Other: {}", t);
                         match pre_state {
                             Start => {
                                 state = Others(t.to_string());
@@ -288,7 +288,7 @@ fn read_form(rdr: &mut Reader) -> MalRet {
 
 pub fn read_str(str: String) -> MalRet {
     let tokens = tokenize(&str);
-    println!("tokens: {:?}", tokens);
+    // println!("tokens: {:?}", tokens);
     if tokens.len() == 0 {
         return error("no input");
     }
