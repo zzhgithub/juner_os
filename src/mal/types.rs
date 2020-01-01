@@ -165,6 +165,7 @@ impl MalVal {
             } => {
                 let a = &**ast;
                 let p = &**params;
+                // 给环境中的变量绑定值 相当于形参绑定实参  然后返回一个子环境 注意这个子环境是可以追溯到母环境的绑定的
                 let fn_env = env_bind(Some(env.clone()), p.clone(), args)?;
                 Ok(eval(a.clone(), fn_env)?)
             }

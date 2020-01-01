@@ -51,13 +51,13 @@ pub fn env_get(env: &Env, key: &MalVal) -> MalRet {
     }
 }
 
-// 在环境中绑定符号
+// 在环境中绑定符号 MalVal是move进来的 适合使用Rust直接定义函数
 pub fn env_sets(env:&Env,key:&str,val:MalVal){
     env.data.borrow_mut().insert(key.to_string(),val);
 }
 
 
-// todo 理解这些代码什么意思？
+// 给环境中的符号绑定 抽象语法树！
 pub fn env_set(env: &Env, key: MalVal, val: MalVal) -> MalRet {
     match key {
         Sym(ref s) => {
@@ -68,6 +68,7 @@ pub fn env_set(env: &Env, key: MalVal, val: MalVal) -> MalRet {
     }
 }
 
+// 给符号绑定 对应的抽象语法树 并且返回一个待使用的Env子环境， 类似与形参绑定实参 
 pub fn env_bind(outer: Option<Env>, mbinds: MalVal, exprs: Vec<MalVal>) -> Result<Env, MalErr> {
     let env = env_new(outer);
     match mbinds {

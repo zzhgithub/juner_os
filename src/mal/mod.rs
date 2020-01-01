@@ -45,6 +45,9 @@ fn eval(ast: MalVal, env: Env) -> MalRet {
                     //todo 这里要处理定义一个函数的问题
                     Ok(Nil)
                 },
+                Sym(ref a0sym) if a0sym == "let*" => {
+                    Ok(Nil)
+                }
                 // todo 这里实现其他的符号逻辑
                 _ => match eval_ast(&ast, &env)? {
                     List(ref el, _) => {
