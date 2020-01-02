@@ -122,5 +122,13 @@ pub fn test(){
         Ok(out) => println!("{}",out),
         Err(e) => println!("{}",format_error(e)),
     }
+    match rep("(def! plus3 (lamdba [x] (+ 3 x)))",&kernel_env){
+        Ok(out) => println!("{}",out),
+        Err(e) => println!("{}",format_error(e)),
+    }
+    match rep("(plus3 3)",&kernel_env){
+        Ok(out) => println!("{}",out),
+        Err(e) => println!("{}",format_error(e)),
+    }
     
 }

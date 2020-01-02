@@ -10,8 +10,9 @@ pub mod types;
 pub mod reader;
 pub mod env;
 pub mod printer;
+pub mod core;
 
-use crate::mal::types::MalVal::{List,Sym,Str,Vector,Hash,Nil,Int};
+use crate::mal::types::MalVal::{List,Sym,Str,Vector,Hash,Nil,Int,MalFunc};
 use crate::mal::types::{error,MalRet,MalArgs,MalVal,MalErr};
 use crate::mal::env::Env;
 use crate::mal::env::{env_get,env_set,env_new};
@@ -78,6 +79,18 @@ fn eval(ast: MalVal, env: Env) -> MalRet {
                         },
                     }
                     eval(a2, let_env)
+                }
+                // 定义闭包函数的语法
+                Sym(a0sym) if a0sym == "lamdba" => {
+                    let (a1,a2) = (l[1].clone(),l[2].clone());
+                    Ok(MalFunc {
+                        eval: eval,
+                        ast: Rc::new(a2),
+                        env: env,
+                        params: Rc::new(a1),
+                        is_macro: false,
+                        meta: Rc::new(Nil),
+                    })
                 }
                 // todo 这里实现其他的符号逻辑
                 _ => match eval_ast(&ast, &env)? {
