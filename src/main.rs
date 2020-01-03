@@ -107,28 +107,23 @@ pub fn test(){
     use crate::mal::types::MalArgs;
     use crate::mal::types::func;// 这个方法可以用 rust的闭包生成一个lisp的函数
     use crate::mal::types::format_error;
-    use crate::mal::int_op;
-    
+     
     // FIXME: 这里的注释识别有一些问题！！！ 不能正常的识别双引号
     let kernel_env:Env = env_new(None);
+    use crate::mal::core::load_core;
+    load_core(&kernel_env);
     
-    // 初始化几个函数(四则运算)
-    env_sets(&kernel_env, "+", func(|a: MalArgs| int_op(|i, j| i + j, a)));
-    env_sets(&kernel_env, "-", func(|a: MalArgs| int_op(|i, j| i - j, a)));
-    env_sets(&kernel_env, "*", func(|a: MalArgs| int_op(|i, j| i * j, a)));
-    env_sets(&kernel_env, "/", func(|a: MalArgs| int_op(|i, j| i / j, a)));
-    
-    match rep("(let* (p (+ 2 3) q (+ 2 p)) (+ p q))",&kernel_env){
-        Ok(out) => println!("{}",out),
-        Err(e) => println!("{}",format_error(e)),
-    }
-    match rep("(def! plus3 (lamdba [x] (+ 3 x)))",&kernel_env){
-        Ok(out) => println!("{}",out),
-        Err(e) => println!("{}",format_error(e)),
-    }
-    match rep("(plus3 3)",&kernel_env){
-        Ok(out) => println!("{}",out),
-        Err(e) => println!("{}",format_error(e)),
+    let code = vec![
+        "(def! plus3 (lamdba [x] (+ 3 x)))",
+        "(plus3 3)",
+        "(not false)",
+    ];
+
+    for line in code {
+        match rep(line,&kernel_env){
+            Ok(out) => println!("{}",out),
+            Err(e) => println!("{}",format_error(e)),
+        }
     }
     
 }

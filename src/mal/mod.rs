@@ -12,7 +12,7 @@ pub mod env;
 pub mod printer;
 pub mod core;
 
-use crate::mal::types::MalVal::{List,Sym,Str,Vector,Hash,Nil,Int,MalFunc};
+use crate::mal::types::MalVal::{List,Sym,Str,Vector,Hash,Nil,Int,MalFunc,Bool};
 use crate::mal::types::{error,MalRet,MalArgs,MalVal,MalErr};
 use crate::mal::env::Env;
 use crate::mal::env::{env_get,env_set,env_new};
@@ -91,6 +91,15 @@ fn eval(ast: MalVal, env: Env) -> MalRet {
                         is_macro: false,
                         meta: Rc::new(Nil),
                     })
+                },
+                Sym(ref a0sym) if a0sym == "if" => {
+                    let cond = eval(l[1].clone(), env.clone())?;
+                    match cond {
+                        Bool(false) | Nil if l.len() >= 4 => eval(l[3].clone(), env.clone()),
+                        Bool(false) | Nil => Ok(Nil),
+                        _ if l.len() >= 3 => eval(l[2].clone(), env.clone()),
+                        _ => Ok(Nil),
+                    }
                 }
                 // todo 这里实现其他的符号逻辑
                 _ => match eval_ast(&ast, &env)? {
