@@ -118,6 +118,8 @@ pub fn test(){
         "(plus3 3)",
         "(not false)",
         "(do (+ 1 2) (* 3 3) 5)",
+        "\"Lisp is so
+        good  for me\""
     ];
 
     for line in code {

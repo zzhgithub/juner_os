@@ -1,5 +1,5 @@
 use crate::list;
-use crate::mal::reader::State::{Comment, Others, Start, StateSym};
+use crate::mal::reader::State::{Comment, Others, Start, StateSym,StateStr};
 use crate::mal::types::error;
 use crate::mal::types::MalErr;
 use crate::mal::types::MalErr::ErrString;
@@ -52,6 +52,7 @@ enum State {
     StateSym(String), // 特殊符号
     Comment(String),  //注释
     Others(String),
+    StateStr(String),  //进入到字符串
 }
 
 // token化
@@ -86,6 +87,11 @@ fn tokenize(str: &str) -> Vec<String> {
                             Others(s) => {
                                 res.push(s);
                                 state = StateSym(t.to_string());
+                            },
+                            StateStr(s) => {
+                                let mut tmp = s.clone();
+                                tmp.push(t);
+                                state = StateStr(tmp);
                             }
                         }
                     }
@@ -106,6 +112,11 @@ fn tokenize(str: &str) -> Vec<String> {
                             Others(s) => {
                                 res.push(s);
                                 state = Start;
+                            },
+                            StateStr(s) => {
+                                let mut tmp = s.clone();
+                                tmp.push(t);
+                                state = StateStr(tmp);
                             }
                         }
                     }
@@ -125,6 +136,11 @@ fn tokenize(str: &str) -> Vec<String> {
                             Others(s) => {
                                 res.push(s);
                                 state = Start;
+                            },
+                            StateStr(s) => {
+                                let mut tmp = s.clone();
+                                tmp.push(t);
+                                state = StateStr(tmp);
                             }
                         }
                     }
@@ -144,6 +160,42 @@ fn tokenize(str: &str) -> Vec<String> {
                         Others(s) => {
                             res.push(s);
                             state = Comment(String::from(t.to_string()));
+                        },
+                        StateStr(s) => {
+                            let mut tmp = s.clone();
+                            tmp.push(t);
+                            state = StateStr(tmp);
+                        }
+                    }, 
+                    '\"' => {
+                        match pre_state {
+                            Start => {
+                                state = StateStr(t.to_string());
+                            },
+                            StateSym(s) => {
+                                res.push(s);
+                                state = StateStr(t.to_string());
+                            },
+                            Comment(s) => {
+                                let mut tmp = s.clone();
+                                tmp.push(t);
+                                state = Comment(tmp);
+                            },
+                            Others(s) => {
+                                let mut tmp = s.clone();
+                                tmp.push(t);
+                                state = Others(tmp);
+                            },
+                            StateStr(s) => { 
+                                let mut tmp = s.clone();
+                                tmp.push(t);
+                                if s.ends_with("\\"){
+                                    state = StateStr(tmp);
+                                } else{
+                                    res.push(tmp);
+                                    state = Start;
+                                }
+                            }
                         }
                     },
                     _ => {
@@ -165,7 +217,12 @@ fn tokenize(str: &str) -> Vec<String> {
                                 let mut tmp = s.clone();
                                 tmp.push(t);
                                 state = Others(tmp);
-                            }
+                            },
+                            StateStr(s) => { 
+                                let mut tmp = s.clone();
+                                tmp.push(t);
+                                state = StateStr(tmp);
+                            },
                         }
                     }
                 }
@@ -185,6 +242,12 @@ fn tokenize(str: &str) -> Vec<String> {
             res.push(s);
         }
         Others(s) => {
+            res.push(s);
+        },
+        StateStr(mut s) => {
+            if !s.ends_with("\"") {
+                s.push('\"');
+            }
             res.push(s);
         }
     }
