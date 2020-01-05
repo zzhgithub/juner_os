@@ -100,6 +100,12 @@ fn eval(ast: MalVal, env: Env) -> MalRet {
                         _ if l.len() >= 3 => eval(l[2].clone(), env.clone()),
                         _ => Ok(Nil),
                     }
+                },
+                Sym(ref a0sym) if a0sym == "do" => {
+                    match eval_ast(&list!(l[1..].to_vec()),&env)?{
+                        List(el,_) => Ok(el.last().unwrap_or(&Nil).clone()),
+                        _ => error("invalid do form"),
+                    }
                 }
                 // todo 这里实现其他的符号逻辑
                 _ => match eval_ast(&ast, &env)? {
@@ -144,6 +150,7 @@ fn eval_ast(ast: &MalVal, env: &Env) -> MalRet {
     }
 }
 
+// 这是个临时的方法其实已经不需要了
 // 把一个MalArgs 如此作用于一个rust的fn
 pub fn int_op(op: fn(i64, i64) -> i64, a: MalArgs) -> MalRet {
     match (a[0].clone(), a[1].clone()) {

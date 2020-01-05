@@ -117,6 +117,7 @@ pub fn test(){
         "(def! plus3 (lamdba [x] (+ 3 x)))",
         "(plus3 3)",
         "(not false)",
+        "(do (+ 1 2) (* 3 3) 5)",
     ];
 
     for line in code {
