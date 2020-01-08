@@ -48,3 +48,36 @@ example:
 => 5
 ```
 计算列表中的每个元素的值，然后返回最后一个元素的值。
+
+### list
+
+```lisp
+(list 1 2 3)
+=> (1 2 3)
+```
+
+生成一个Lisp的列表。
+
+### read-string
+
+```lisp
+(read-string "Nil")
+=> Nil
+
+(read-string "(+ 1 1)")
+=> (Fn*<xxx00> 1 1)
+
+```
+读一个字符串生成一个Lisp对象，注意只生成对象，但是不进行求值。
+
+### eval
+
+```lisp
+(eval (read-string "(+ 1 3)"))
+=> 4
+
+(eval (list + 1 3))
+=> 4
+
+```
+对Lisp对象进行求值。使用这个方法后，Lisp中没有了数据和代码的界限。捅破了数据和代码的那层窗户纸。

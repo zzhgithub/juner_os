@@ -120,6 +120,13 @@ fn eval(mut ast: MalVal,mut env: Env) -> MalRet {
                         }
                     }
                     // todo 这里实现其他的符号逻辑
+                    Sym(ref a0sym) if a0sym == "eval" =>{
+                        ast = eval(l[1].clone(), env.clone())?;
+                        while let Some(ref e) = env.clone().outer {
+                            env = e.clone();
+                        }
+                        continue 'tco;
+                    },
                     _ => match eval_ast(&ast, &env)? {
                         List(ref el, _) => {
                             let ref f = el[0].clone();

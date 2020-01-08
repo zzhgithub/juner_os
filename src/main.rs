@@ -119,7 +119,10 @@ pub fn test(){
         "(not false)",
         "(do (+ 1 2) (* 3 3) 5)",
         "\"Lisp is so
-        good  for me\""
+        good  for me\"",
+        "(eval (read-string \"(+ 1 3)\"))",
+        "(def! test-eval (list + 3 3))",
+        "(eval test-eval)",
     ];
 
     for line in code {
