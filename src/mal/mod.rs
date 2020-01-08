@@ -12,10 +12,10 @@ pub mod env;
 pub mod printer;
 pub mod core;
 
-use crate::mal::types::MalVal::{List,Sym,Str,Vector,Hash,Nil,Int,MalFunc,Bool};
+use crate::mal::types::MalVal::{List,Sym,Str,Vector,Hash,Nil,Int,MalFunc,Bool,Func};
 use crate::mal::types::{error,MalRet,MalArgs,MalVal,MalErr};
 use crate::mal::env::Env;
-use crate::mal::env::{env_get,env_set,env_new};
+use crate::mal::env::{env_get,env_set,env_new,env_bind};
 use crate::vec;
 use crate::vector;
 use crate::list;
@@ -34,91 +34,122 @@ pub fn rep(str: &str, env: &Env) -> Result<String, MalErr> {
 }
 
 // 求值
-fn eval(ast: MalVal, env: Env) -> MalRet {
-    match ast.clone(){
-        List(l,_)=>{
-            if l.len() == 0 {
-                return Ok(ast);
-            }
-            let a0 = &l[0];
-            match a0 {
-                Sym(ref a0sym) if a0sym == "def!" => {
-                    env_set(&env, l[1].clone(), eval(l[2].clone(), env.clone())?)
-                },
-                Sym(ref a0sym) if a0sym == "let*" => {
-                    // 对let* 语法进行支持
-                    let let_env = env_new(Some(env.clone()));
-                    let (a1,a2) = (l[1].clone(),l[2].clone());
-                    match a1 {
-                        List(ref binds,_) | Vector(ref binds,_) => {
-                            let mut binds_iter = binds.iter();
-                            loop {
-                                match binds_iter.next(){
-                                    Some(b) =>{
-                                        match binds_iter.next() {
-                                            Some(e) => {
-                                                let _ = env_set(
-                                                    &let_env,
-                                                    b.clone(),
-                                                    eval(e.clone(), let_env.clone())?
-                                                );
-                                            },
-                                            None => {
-                                                return error("let* with non-Sym binding");
+fn eval(mut ast: MalVal,mut env: Env) -> MalRet {
+    let ret:MalRet;
+    'tco: loop {
+        ret = match ast.clone(){
+            List(l,_)=>{
+                if l.len() == 0 {
+                    return Ok(ast);
+                }
+                let a0 = &l[0];
+                match a0 {
+                    Sym(ref a0sym) if a0sym == "def!" => {
+                        env_set(&env, l[1].clone(), eval(l[2].clone(), env.clone())?)
+                    },
+                    Sym(ref a0sym) if a0sym == "let*" => {
+                        // 对let* 语法进行支持
+                        env = env_new(Some(env.clone()));
+                        let (a1,a2) = (l[1].clone(),l[2].clone());
+                        match a1 {
+                            List(ref binds,_) | Vector(ref binds,_) => {
+                                let mut binds_iter = binds.iter();
+                                'letloop: loop {
+                                    match binds_iter.next(){
+                                        Some(b) =>{
+                                            match binds_iter.next() {
+                                                Some(e) => {
+                                                    let _ = env_set(
+                                                        &env,
+                                                        b.clone(),
+                                                        eval(e.clone(), env.clone())?
+                                                    );
+                                                },
+                                                None => {
+                                                    return error("let* with non-Sym binding");
+                                                }
                                             }
-                                        }
-                                    },
-                                    None => {
-                                        break;
-                                    },
+                                        },
+                                        None => {
+                                            break 'letloop;
+                                        },
+                                    }
                                 }
+                            },
+                            _ => {
+                                return error("let* with non-List bindings");
+                            },
+                        }
+                        ast = a2;
+                        continue 'tco;
+                    }
+                    // 定义闭包函数的语法
+                    Sym(a0sym) if a0sym == "lamdba" => {
+                        let (a1,a2) = (l[1].clone(),l[2].clone());
+                        Ok(MalFunc {
+                            eval: eval,
+                            ast: Rc::new(a2),
+                            env: env,
+                            params: Rc::new(a1),
+                            is_macro: false,
+                            meta: Rc::new(Nil),
+                        })
+                    },
+                    Sym(ref a0sym) if a0sym == "if" => {
+                        let cond = eval(l[1].clone(), env.clone())?;
+                        match cond {
+                            Bool(false) | Nil if l.len() >= 4 => {
+                                ast = l[3].clone();
+                                continue 'tco;
+                            },
+                            Bool(false) | Nil => Ok(Nil),
+                            _ if l.len() >= 3 => {
+                                ast = l[2].clone();
+                                continue 'tco;
+                            },
+                            _ => Ok(Nil),
+                        }
+                    },
+                    Sym(ref a0sym) if a0sym == "do" => {
+                        match eval_ast(&list!(l[1..].to_vec()),&env)?{
+                            List(_,_) => {
+                                ast = l.last().unwrap_or(&Nil).clone();
+                                continue 'tco;
                             }
-                        },
-                        _ => {
-                            return error("let* with non-List bindings");
-                        },
+                            _ => error("invalid do form"),
+                        }
                     }
-                    eval(a2, let_env)
-                }
-                // 定义闭包函数的语法
-                Sym(a0sym) if a0sym == "lamdba" => {
-                    let (a1,a2) = (l[1].clone(),l[2].clone());
-                    Ok(MalFunc {
-                        eval: eval,
-                        ast: Rc::new(a2),
-                        env: env,
-                        params: Rc::new(a1),
-                        is_macro: false,
-                        meta: Rc::new(Nil),
-                    })
-                },
-                Sym(ref a0sym) if a0sym == "if" => {
-                    let cond = eval(l[1].clone(), env.clone())?;
-                    match cond {
-                        Bool(false) | Nil if l.len() >= 4 => eval(l[3].clone(), env.clone()),
-                        Bool(false) | Nil => Ok(Nil),
-                        _ if l.len() >= 3 => eval(l[2].clone(), env.clone()),
-                        _ => Ok(Nil),
-                    }
-                },
-                Sym(ref a0sym) if a0sym == "do" => {
-                    match eval_ast(&list!(l[1..].to_vec()),&env)?{
-                        List(el,_) => Ok(el.last().unwrap_or(&Nil).clone()),
-                        _ => error("invalid do form"),
+                    // todo 这里实现其他的符号逻辑
+                    _ => match eval_ast(&ast, &env)? {
+                        List(ref el, _) => {
+                            let ref f = el[0].clone();
+                            let args = el[1..].to_vec();
+                            match f {
+                                Func(_,_) => f.apply(args),
+                                MalFunc{
+                                    ast: mast,
+                                    env: menv,
+                                    params,
+                                    ..
+                                } => {
+                                    let a = &**mast;
+                                    let p = &**params;
+                                    env = env_bind(Some(menv.clone()), p.clone(), args)?;
+                                    ast = a.clone();
+                                    continue 'tco;
+                                },
+                                _ => error("attempt to call non-function"),
+                            }
+                        }
+                        _ => error("expected a list"),
                     }
                 }
-                // todo 这里实现其他的符号逻辑
-                _ => match eval_ast(&ast, &env)? {
-                    List(ref el, _) => {
-                        let ref f = el[0].clone();
-                        f.apply(el[1..].to_vec())
-                    }
-                    _ => error("expected a list"),
-                }
-            }
-        },
-        _ => eval_ast(&ast, &env),
-    }
+            },
+            _ => eval_ast(&ast, &env),
+            };
+            break 'tco;
+    }   
+    ret
 }
 
 // 对下级的AST求值
