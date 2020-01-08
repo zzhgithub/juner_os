@@ -33,6 +33,7 @@ macro_rules! fn_str {
 
 pub fn ns() -> Vec<(&'static str,MalVal)> {
     vec![
+        ("=", func(|a| Ok(Bool(a[0] == a[1])))),
         ("read-string",func(fn_str!(|s| {read_str(s)}))),
         ("list",func(|a| Ok(list!(a)))),
         ("<", func(fn_t_int_int!(Bool, |i, j| { i < j }))),

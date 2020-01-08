@@ -34,7 +34,7 @@ fn panic(info: &PanicInfo) -> ! {
     hlt_loop();
 }
 
-// 函数入口
+// 函数入口
 entry_point!(kernel_main);
 
 fn kernel_main(boot_info:&'static BootInfo)-> !{
@@ -114,6 +114,7 @@ pub fn test(){
     load_core(&kernel_env);
     
     let code = vec![
+        "(= 2 2)",
         "(def! plus3 (lamdba [x] (+ 3 x)))",
         "(plus3 3)",
         "(not false)",
