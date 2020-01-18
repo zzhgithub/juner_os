@@ -1,5 +1,8 @@
 # juner_os
 
+## 开发日志
+
+- [开发日志详细文档](https://www.yuque.com/xiaohao-i0lwb/fn1hxc)
 
 ## 直接测试运行
 
