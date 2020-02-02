@@ -81,3 +81,30 @@ example:
 
 ```
 对Lisp对象进行求值。使用这个方法后，Lisp中没有了数据和代码的界限。捅破了数据和代码的那层窗户纸。
+
+
+### prn
+
+打印一个符号如果不存在就报错
+
+```lisp
+(prn abc)
+=> not found 'abc'
+```
+
+### quote
+表示后面的值是这个符号本身
+可以和prn进行配合使用
+
+```lisp
+(prn (quote abc))
+
+=> abc
+=> Nil
+```
+解释：打印abc是prn函数的副作用。prn函数真正的返回是Nil。
+
+### '
+
+' 是 quote的语法糖。
+'abc 和 (quote abc)是完全等效的。实际上它在解释器内部也会翻译成quote的形式。

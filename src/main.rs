@@ -124,6 +124,9 @@ pub fn test(){
         "(eval (read-string \"(+ 1 3)\"))",
         "(def! test-eval (list + 3 3))",
         "(eval test-eval)",
+        "(prn abc)",
+        "(prn (quote abc))",
+        "(prn 'abc)",
     ];
 
     for line in code {

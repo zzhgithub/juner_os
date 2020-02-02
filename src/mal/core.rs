@@ -9,7 +9,9 @@ use crate::mal::env::{env_set,env_sets};
 use crate::mal::rep;
 use crate::vec;
 use crate::list;
+use crate::println;
 use crate::mal::reader::read_str;
+use crate::mal::printer::pr_seq;
 
 // 处理两个值入参
 macro_rules! fn_t_int_int {
@@ -44,6 +46,10 @@ pub fn ns() -> Vec<(&'static str,MalVal)> {
         ("-", func(fn_t_int_int!(Int, |i, j| { i - j }))),
         ("*", func(fn_t_int_int!(Int, |i, j| { i * j }))),
         ("/", func(fn_t_int_int!(Int, |i, j| { i / j }))),
+        ("prn",func(|a|{
+            println!("{}",pr_seq(&a, true, "", "", ""));
+            Ok(Nil)
+        })),
     ]
 }
 
