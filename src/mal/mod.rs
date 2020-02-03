@@ -4,6 +4,7 @@ use crate::mal::types::format_error;
 use crate::mal::reader::read_str;
 use hashbrown::HashMap;
 use alloc::rc::Rc;
+use alloc::vec::Vec;
 
 
 pub mod types;
@@ -31,6 +32,38 @@ pub fn rep(str: &str, env: &Env) -> Result<String, MalErr> {
     let ast = read_str(str.to_string())?;
     let exp = eval(ast, env.clone())?;
     Ok(exp.pr_str(true))
+}
+
+// 对符号列表支持临时求值的 (quote 的升级版)
+fn quasiquote(ast: &MalVal) -> MalVal {
+    match ast {
+        List(ref v,_) | Vector(ref v, _) if v.len() > 0 => {
+            let a0 = &v[0];
+            match a0 {
+                Sym(ref s) if s == "unquote" => v[1].clone(),
+                _ => match a0 {
+                    List(ref v0,_) | Vector(ref v0,_) if v0.len() > 0 => match v0[0] {
+                        Sym(ref s) if s == "splice-unquote" => list![
+                            Sym("concat".to_string()),
+                            v0[1].clone(),
+                            quasiquote(&list!(v[1..].to_vec()))
+                        ],
+                        _ => list![
+                            Sym("cons".to_string()),
+                            quasiquote(a0),
+                            quasiquote(&list!(v[1..].to_vec()))
+                        ],
+                    },
+                    _ => list![
+                        Sym("cons".to_string()),
+                        quasiquote(a0),
+                        quasiquote(&list!(v[1..].to_vec()))
+                    ],
+                },
+            }
+        }
+        _ => list![Sym("quote".to_string()),ast.clone()]
+    }
 }
 
 // 求值
@@ -121,6 +154,10 @@ fn eval(mut ast: MalVal,mut env: Env) -> MalRet {
                     }
                     // todo 这里实现其他的符号逻辑
                     Sym(ref a0sym) if a0sym == "quote" => Ok(l[1].clone()),
+                    Sym(ref a0sym) if a0sym == "quasiquote" => {
+                        ast = quasiquote(&l[1]);
+                        continue 'tco;
+                    },
                     Sym(ref a0sym) if a0sym == "eval" =>{
                         ast = eval(l[1].clone(), env.clone())?;
                         while let Some(ref e) = env.clone().outer {

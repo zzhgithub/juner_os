@@ -114,19 +114,24 @@ pub fn test(){
     load_core(&kernel_env);
     
     let code = vec![
-        "(= 2 2)",
-        "(def! plus3 (lamdba [x] (+ 3 x)))",
-        "(plus3 3)",
-        "(not false)",
-        "(do (+ 1 2) (* 3 3) 5)",
-        "\"Lisp is so
-        good  for me\"",
-        "(eval (read-string \"(+ 1 3)\"))",
-        "(def! test-eval (list + 3 3))",
-        "(eval test-eval)",
-        "(prn abc)",
-        "(prn (quote abc))",
-        "(prn 'abc)",
+        // "(= 2 2)",
+        // "(def! plus3 (lamdba [x] (+ 3 x)))",
+        // "(plus3 3)",
+        // "(not false)",
+        // "(do (+ 1 2) (* 3 3) 5)",
+        // "\"Lisp is so
+        // good  for me\"",
+        // "(eval (read-string \"(+ 1 3)\"))",
+        // "(def! test-eval (list + 3 3))",
+        // "(eval test-eval)",
+        // "(prn abc)",
+        // "(prn (quote abc))",
+        // "(prn 'abc)",
+        "(def! lst '(2 3))",
+        // "(quasiquote (1 (unquote lst)))",
+        // "(quasiquote (1 (splice-unquote lst)))",
+        "`(1 ~lst)",
+        "`(1 ~@lst)",
     ];
 
     for line in code {

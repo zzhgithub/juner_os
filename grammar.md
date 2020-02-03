@@ -108,3 +108,35 @@ example:
 
 ' 是 quote的语法糖。
 'abc 和 (quote abc)是完全等效的。实际上它在解释器内部也会翻译成quote的形式。
+
+
+### quasiquote 、 unquote 和 splice-unquote
+quasiquote建立一个可以临时求值的的符号。如果单独使用和quote没有什么区别。  
+要和unquote与splice-unquote联合使用。其中有轻微的差别。unquote表示对下一个符号进行临时取值。  
+splice-unquote临时取值后把列表展开。
+
+具体例子如下：
+```lisp
+(def! lst '(2 3))
+=> (2 3)
+
+(quasiquote (1 (unquote lst)))
+=> (1 (2 3))
+
+(quasiquote (1 (splice-unquote lst)))
+=> (1 2 3)
+```
+
+### ` 、 ～ 和 ～@
+quasiquote 、 unquote 和 splice-unquote 的语法糖。
+
+```lisp
+(def! lst '(2 3))
+=> (2 3)
+
+`(1 ～lst)
+=> (1 (2 3))
+
+`(1 ~@lst)
+=> (1 2 3)
+```

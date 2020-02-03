@@ -73,6 +73,7 @@ fn tokenize(str: &str) -> Vec<String> {
                             StateSym(s) => {
                                 if s == "~" && t == '@' {
                                     res.push(String::from("~@"));
+                                    state = Start;
                                 } else {
                                     res.push(s);
                                     res.push(t.to_string());

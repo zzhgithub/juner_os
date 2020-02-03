@@ -3,8 +3,8 @@ use alloc::vec::Vec;
 use alloc::rc::Rc;
 use alloc::string::{String,ToString};
 use crate::mal::env::Env;
-use crate::mal::types::{MalVal,MalArgs,error,func};
-use crate::mal::types::MalVal::{Int,Str,Bool,Nil,List};
+use crate::mal::types::{MalRet,MalVal,MalArgs,error,func};
+use crate::mal::types::MalVal::{Int,Str,Bool,Nil,List,Vector};
 use crate::mal::env::{env_set,env_sets};
 use crate::mal::rep;
 use crate::vec;
@@ -33,6 +33,30 @@ macro_rules! fn_str {
 }
 
 
+fn cons(a:MalArgs) -> MalRet {
+    match a[1].clone() {
+        List(v,_) | Vector(v,_) => {
+            let mut new_v = vec![a[0].clone()];
+            new_v.extend_from_slice(&v);
+            Ok(list!(new_v.to_vec()))
+        },
+        _ => error("cons expects seq as second arg")
+    }
+}
+
+fn concat(a: MalArgs) -> MalRet {
+    let mut new_v = vec![];
+    for seq in a.iter() {
+        match seq {
+            List(v, _) | Vector(v, _) => new_v.extend_from_slice(v),
+            _ => return error("non-seq passed to concat"),
+        }
+    }
+    Ok(list!(new_v.to_vec()))
+}
+
+
+
 pub fn ns() -> Vec<(&'static str,MalVal)> {
     vec![
         ("=", func(|a| Ok(Bool(a[0] == a[1])))),
@@ -50,6 +74,8 @@ pub fn ns() -> Vec<(&'static str,MalVal)> {
             println!("{}",pr_seq(&a, true, "", "", ""));
             Ok(Nil)
         })),
+        ("cons",func(cons)),
+        ("concat", func(concat)),
     ]
 }
 
