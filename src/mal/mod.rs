@@ -16,7 +16,7 @@ pub mod core;
 use crate::mal::types::MalVal::{List,Sym,Str,Vector,Hash,Nil,Int,MalFunc,Bool,Func};
 use crate::mal::types::{error,MalRet,MalArgs,MalVal,MalErr};
 use crate::mal::env::Env;
-use crate::mal::env::{env_get,env_set,env_new,env_bind};
+use crate::mal::env::{env_get,env_set,env_new,env_bind,env_find};
 use crate::vec;
 use crate::vector;
 use crate::list;
@@ -66,6 +66,37 @@ fn quasiquote(ast: &MalVal) -> MalVal {
     }
 }
 
+//是否是宏调用 并且返回AST的入参
+fn is_macro_call(ast: &MalVal, env: &Env) -> Option<(MalVal, MalArgs)> {
+    match ast {
+        List(v, _) => match v[0] {
+            Sym(ref s) => match env_find(env, s) {
+                Some(e) => match env_get(&e, &v[0]) {
+                    Ok(f @ MalFunc { is_macro: true, .. }) => Some((f, v[1..].to_vec())),
+                    _ => None,
+                },
+                _ => None,
+            },
+            _ => None,
+        },
+        _ => None,
+    }
+}
+
+// 宏展开函数
+fn macroexpand(mut ast: MalVal, env: &Env) -> (bool, MalRet) {
+    let mut was_expanded = false;
+    while let Some((mf,args)) = is_macro_call(&ast, env) {
+        ast = match mf.apply(args) {
+            Err(e) => return (false, Err(e)),
+            Ok(a) => a,
+        };
+        was_expanded = true;
+    }
+    (was_expanded,Ok(ast))
+}
+
+
 // 求值
 fn eval(mut ast: MalVal,mut env: Env) -> MalRet {
     let ret:MalRet;
@@ -74,6 +105,15 @@ fn eval(mut ast: MalVal,mut env: Env) -> MalRet {
             List(l,_)=>{
                 if l.len() == 0 {
                     return Ok(ast);
+                }
+                // 展开尝试并且求值
+                match macroexpand(ast.clone(), &env) {
+                    (true,Ok(new_ast)) => {
+                        ast = new_ast;
+                        continue 'tco;
+                    }
+                    (_,Err(e)) => return Err(e),
+                    _ => (), // 理论上不会到这个分支 
                 }
                 let a0 = &l[0];
                 match a0 {
@@ -152,7 +192,6 @@ fn eval(mut ast: MalVal,mut env: Env) -> MalRet {
                             _ => error("invalid do form"),
                         }
                     }
-                    // todo 这里实现其他的符号逻辑
                     Sym(ref a0sym) if a0sym == "quote" => Ok(l[1].clone()),
                     Sym(ref a0sym) if a0sym == "quasiquote" => {
                         ast = quasiquote(&l[1]);
@@ -164,6 +203,37 @@ fn eval(mut ast: MalVal,mut env: Env) -> MalRet {
                             env = e.clone();
                         }
                         continue 'tco;
+                    },
+                    // todo 这里实现其他的符号逻辑
+                    // 进行宏定义
+                    Sym(ref a0sym) if a0sym == "defmacro!" => {
+                        let (a1,a2) = (l[1].clone(),l[2].clone());
+                        let r = eval(a2, env.clone())?;
+                        match r {
+                            MalFunc {
+                                eval,
+                                ast,
+                                env,
+                                params,
+                                ..
+                            }=> Ok(env_set(&env, a1.clone(), MalFunc {
+                                eval:eval,
+                                ast:ast.clone(),
+                                env:env.clone(),
+                                params:params.clone(),
+                                is_macro:true,
+                                meta: Rc::new(Nil),
+                                // mate 的作用是什么？
+                            })?),
+                            _ => error("set_macro on non-function"),
+                        }
+                    },
+                    // 进行宏展开
+                    Sym(ref a0sym) if a0sym == "macroexpand" => {
+                        match macroexpand(l[1].clone(), &env) {
+                            (_, Ok(new_ast)) => Ok(new_ast),
+                            (_, e) => return e,
+                        }
                     },
                     _ => match eval_ast(&ast, &env)? {
                         List(ref el, _) => {
