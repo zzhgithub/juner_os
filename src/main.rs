@@ -139,8 +139,9 @@ pub fn test(){
         // "(defmacro! unless (lamdba (pred a b) `(if ~pred ~b ~a)))",
         // "(unless false 7 8)",
         // "(macroexpand (unless false 7 8))"
-        "(nth [1 2 3] 0)",
-        "(nth '(1 2 3) 1)"
+        // "(nth [1 2 3] 0)",
+        // "(nth '(1 2 3) 1)",
+        "(first '((1 2) 2 3))"
     ];
 
     for line in code {

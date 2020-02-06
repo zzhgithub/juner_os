@@ -68,6 +68,15 @@ fn nth(a: MalArgs) -> MalRet{
     }
 }
 
+fn first(a: MalArgs) -> MalRet {
+    match a[0].clone() {
+        List(ref seq, _) | Vector(ref seq, _) if seq.len() == 0 => Ok(Nil),
+        List(ref seq, _) | Vector(ref seq, _) => Ok(seq[0].clone()),
+        Nil => Ok(Nil),
+        _ => error("invalid args to first"),
+    }
+}
+
 
 pub fn ns() -> Vec<(&'static str,MalVal)> {
     vec![
@@ -89,6 +98,7 @@ pub fn ns() -> Vec<(&'static str,MalVal)> {
         ("cons",func(cons)),
         ("concat", func(concat)),
         ("nth", func(nth)),
+        ("first",func(first)),
     ]
 }
 
