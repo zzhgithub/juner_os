@@ -162,3 +162,20 @@ quasiquote 、 unquote 和 splice-unquote 的语法糖。
 (concat [1 2])
 => (1 2)
 ```
+
+### defmacro! 和 macroexpand
+宏定义和宏展开
+
+宏定义 定义一个符号。它的返回值会被继续当做ast进行求值。所有这里可以广泛的运用到之前的' ` ～ ～@ d等语法糖。  
+宏展开。展开一个宏，只计算出它要求值的ast而不进行求值。
+```lisp
+(defmacro! unless (lamdba (pred a b) `(if ~pred ~b ~a)))
+
+=> ...（此处省略）
+
+(unless false 7 8)
+=> 7
+
+(macroexpand (unless false 7 8))
+=> (if fasle 7 8)
+```

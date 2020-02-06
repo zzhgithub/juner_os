@@ -127,15 +127,18 @@ pub fn test(){
         // "(prn abc)",
         // "(prn (quote abc))",
         // "(prn 'abc)",
-        "(def! lst '(2 3))",
+        // "(def! lst '(2 3))",
         // "(quasiquote (1 (unquote lst)))",
         // "(quasiquote (1 (splice-unquote lst)))",
-        "`(1 ~lst)",
-        "`(1 ~@lst)",
-        "(cons [1] [2 3])",
-        "(cons 1 [2 3])",
-        "(concat [1 2] (list 3 4) [5 6])",
-        "(concat [1 2])"
+        // "`(1 ~lst)",
+        // "`(1 ~@lst)",
+        // "(cons [1] [2 3])",
+        // "(cons 1 [2 3])",
+        // "(concat [1 2] (list 3 4) [5 6])",
+        // "(concat [1 2])"
+        "(defmacro! unless (lamdba (pred a b) `(if ~pred ~b ~a)))",
+        "(unless false 7 8)",
+        "(macroexpand (unless false 7 8))"
     ];
 
     for line in code {
