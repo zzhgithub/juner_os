@@ -179,3 +179,14 @@ quasiquote 、 unquote 和 splice-unquote 的语法糖。
 (macroexpand (unless false 7 8))
 => (if fasle 7 8)
 ```
+
+### nth
+这个函数接受一个列表（或向量）以及一个数字（序号）作为参数，返回列表中给定序号位置的元素。如果序号超出了返回，函数抛出一个异常。
+
+```lisp
+(nth [1 2 3] 0)
+=> 1
+
+(nth '(1 2 3) 1)
+=> 2
+```

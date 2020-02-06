@@ -136,9 +136,11 @@ pub fn test(){
         // "(cons 1 [2 3])",
         // "(concat [1 2] (list 3 4) [5 6])",
         // "(concat [1 2])"
-        "(defmacro! unless (lamdba (pred a b) `(if ~pred ~b ~a)))",
-        "(unless false 7 8)",
-        "(macroexpand (unless false 7 8))"
+        // "(defmacro! unless (lamdba (pred a b) `(if ~pred ~b ~a)))",
+        // "(unless false 7 8)",
+        // "(macroexpand (unless false 7 8))"
+        "(nth [1 2 3] 0)",
+        "(nth '(1 2 3) 1)"
     ];
 
     for line in code {

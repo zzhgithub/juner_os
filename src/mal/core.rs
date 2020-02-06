@@ -56,6 +56,18 @@ fn concat(a: MalArgs) -> MalRet {
 }
 
 
+fn nth(a: MalArgs) -> MalRet{
+    match (a[0].clone(),a[1].clone()) {
+        (List(seq,_),Int(idx)) | (Vector(seq,_),Int(idx)) => {
+            if seq.len() <=idx as usize{
+                return error("nth:index out of range");
+            }
+            Ok(seq[idx as usize].clone())
+        },
+        _ => error("invalid args to nth")
+    }
+}
+
 
 pub fn ns() -> Vec<(&'static str,MalVal)> {
     vec![
@@ -76,6 +88,7 @@ pub fn ns() -> Vec<(&'static str,MalVal)> {
         })),
         ("cons",func(cons)),
         ("concat", func(concat)),
+        ("nth", func(nth)),
     ]
 }
 
