@@ -173,4 +173,20 @@ impl MalVal {
         }
     }
     //todo
+    // 判断对象是否为空
+    pub fn empty_q(&self) -> MalRet {
+        match self {
+            List(l,_) | Vector(l,_) => Ok(Bool(l.len()==0)),
+            Nil => Ok(Bool(true)),
+            _ => error("invalid empty value!"),
+        }
+    }
+
+    pub fn count(&self) -> MalRet {
+        match self{
+            List(l, _) | Vector(l, _) => Ok(Int(l.len() as i64)),
+            Nil => Ok(Int(0)),
+            _ => error("invalid type for count"),
+        }
+    }
 }

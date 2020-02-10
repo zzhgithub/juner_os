@@ -200,3 +200,24 @@ quasiquote 、 unquote 和 splice-unquote 的语法糖。
 => (1 2)
 ```
 
+### count
+接受一个列表或者向量返回列表或者向量的长度
+
+```lisp
+(count '(1 2 (2 3)))
+=> 3
+
+(count [1 2 3])
+=> 3
+```
+
+### empty?
+接受一个列表或者向量判断这个对象是否事空。如果我空的情况下返回true否则返回false
+
+```lisp
+(empty? '())
+=> true
+
+(empty? nil)
+=> true
+```

@@ -113,12 +113,16 @@ pub fn ns() -> Vec<(&'static str,MalVal)> {
         ("nth", func(nth)),
         ("first",func(first)),
         ("rest",func(rest)),
+        ("count",func(|x| x[0].count())),// 获取列表 或者向量的长度
+        ("empty?", func(|a| a[0].empty_q())), // 判断一个符号是否为空
     ]
 }
 
 fn mal() ->Vec<&'static str> {
     vec![
         "(def! not (lamdba (a) (if a false true)))",
+        "(defmacro! cond (lamdba (& xs) (if (> (count xs) 0) (list 'if (first xs) (if (> (count xs) 1) (nth xs 1) (throw \"odd number of forms to cond\")) (cons 'cond (rest (rest xs)))))))",
+        "(defmacro! or (lamdba (& xs) (if (empty? xs) nil (if (= 1 (count xs)) (first xs) `(let* (or_FIXME ~(first xs)) (if or_FIXME or_FIXME (or ~@(rest xs))))))))",
     ]
 }
 
