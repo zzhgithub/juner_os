@@ -142,10 +142,13 @@ pub fn test(){
         // "(nth [1 2 3] 0)",
         // "(nth '(1 2 3) 1)",
         // "(first '((1 2) 2 3))",
-        "(count '(1 2 (2 3)))",
-        "(count [1 2 3])",
-        "(empty? '())",
-        "(empty? nil)",
+        // "(count '(1 2 (2 3)))",
+        // "(count [1 2 3])",
+        // "(empty? '())",
+        // "(empty? nil)",
+        "(throw \"err1\")",
+        "(try* abc (catch* exc (prn \"exc is:\" exc)))",
+        "(try* (throw \"my exception\") (catch* exc (do (prn \"exc:\" exc) 7)))",
     ];
 
     for line in code {

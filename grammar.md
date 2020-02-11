@@ -221,3 +221,20 @@ quasiquote 、 unquote 和 splice-unquote 的语法糖。
 (empty? nil)
 => true
 ```
+
+### try* catch* 和 throw
+
+try-catch代码块和其他 语言的try-catch并没有什么特别的不同。try后面跟着一个语句。如果有多条语句可以使用do语句进行配合，而catch
+语句中，会有一个异常，并且可以控制代码段的返回。如果使用了throw可以主动的抛出一个异常。
+
+```lisp
+(throw "err1")
+=> err1
+
+(try* abc (catch* exc (prn "exc is:" exc)))
+=> "exc is:" "not found 'abc'"
+
+(try* (throw "my exception") (catch* exc (do (prn "exc:" exc) 7)))
+=> "exc:" "my exception"
+=> 7
+```

@@ -5,6 +5,7 @@ use alloc::string::{String,ToString};
 use crate::mal::env::Env;
 use crate::mal::types::{MalRet,MalVal,MalArgs,error,func};
 use crate::mal::types::MalVal::{Int,Str,Bool,Nil,List,Vector};
+use crate::mal::types::MalErr::{ErrString,ErrMalVal};
 use crate::mal::env::{env_set,env_sets};
 use crate::mal::rep;
 use crate::vec;
@@ -115,6 +116,7 @@ pub fn ns() -> Vec<(&'static str,MalVal)> {
         ("rest",func(rest)),
         ("count",func(|x| x[0].count())),// 获取列表 或者向量的长度
         ("empty?", func(|a| a[0].empty_q())), // 判断一个符号是否为空
+        ("throw", func(|a| Err(ErrMalVal(a[0    ].clone())))),// 主动的抛出异常
     ]
 }
 

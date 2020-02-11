@@ -15,6 +15,7 @@ pub mod core;
 
 use crate::mal::types::MalVal::{List,Sym,Str,Vector,Hash,Nil,Int,MalFunc,Bool,Func};
 use crate::mal::types::{error,MalRet,MalArgs,MalVal,MalErr};
+use crate::mal::types::MalErr::{ErrMalVal,ErrString};
 use crate::mal::env::Env;
 use crate::mal::env::{env_get,env_set,env_new,env_bind,env_find};
 use crate::vec;
@@ -205,6 +206,26 @@ fn eval(mut ast: MalVal,mut env: Env) -> MalRet {
                         continue 'tco;
                     },
                     // todo 这里实现其他的符号逻辑
+                    Sym(ref a0sym) if a0sym == "try*" => match eval(l[1].clone(), env.clone()) {
+                        Err(ref e) if l.len() >= 3 => {
+                            let exc = match e {
+                                ErrMalVal(mv) => mv.clone(),
+                                ErrString(s) => Str(s.to_string()),
+                            };
+                            match l[2].clone() {
+                                List(c,_) => {
+                                    let catch_env = env_bind(
+                                        Some(env.clone()),
+                                        list![vec![c[1].clone()]],
+                                        vec![exc],
+                                    )?;
+                                    eval(c[2].clone(), catch_env)
+                                },
+                                _ => error("invalid catch b,lock"),
+                            }
+                        }
+                        res => res,
+                    },
                     // 进行宏定义
                     Sym(ref a0sym) if a0sym == "defmacro!" => {
                         let (a1,a2) = (l[1].clone(),l[2].clone());
