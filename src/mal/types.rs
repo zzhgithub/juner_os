@@ -131,6 +131,11 @@ pub fn func(f: fn(MalArgs) -> MalRet) -> MalVal {
     Func(f, Rc::new(Nil))
 }
 
+// 创造一个原子
+pub fn atom(mv:&MalVal) ->MalVal {
+    Atom(Rc::new(RefCell::new(mv.clone())))
+}
+
 // 实现比较方法 判断两个 MalVal 是否相等
 impl PartialEq for MalVal {
     fn eq(&self, other: &MalVal) -> bool {
@@ -172,7 +177,40 @@ impl MalVal {
             _ => error("attempt to call non-function"),
         }
     }
-    //todo
+    
+    // 获取一个原子所对应的值
+    pub fn deref(&self) -> MalRet {
+        match self {
+            Atom(a) => Ok(a.borrow().clone()),
+            _ => error("attempt to deref a non-Atom")
+        }        
+    }
+
+    // 重新绑定原子， 使他指向这个新的ast对象，下面的new
+    pub fn reset_bang(&self, new: &MalVal) -> MalRet {
+        match self {
+            Atom(a) => {
+                *a.borrow_mut() = new.clone();
+                Ok(new.clone())
+            }
+            _ => error("attempt to reset! a non-Atom"),
+        }
+    }
+
+    // 对于一个atom 输入一个函数 然后把atom的值加在最开始作为输入使用进行求值 并且更新原子的值
+    pub fn swap_bang(&self, args: &MalArgs) -> MalRet {
+        match self {
+            Atom(a) => {
+                let f = &args[0];
+                let mut fargs = args[1..].to_vec();
+                fargs.insert(0, a.borrow().clone());
+                *a.borrow_mut() = f.apply(fargs)?;
+                Ok(a.borrow().clone())
+            }
+            _ => error("attempt to swap! a non-Atom"),
+        }
+    }
+
     // 判断对象是否为空
     pub fn empty_q(&self) -> MalRet {
         match self {

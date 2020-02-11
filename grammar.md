@@ -271,3 +271,28 @@ try-catch代码块和其他 语言的try-catch并没有什么特别的不同。t
 - true?
 - false?
 - symbol? (判断是不是符号)
+
+
+### Atom 进行原子操作
+
+- atom: 输入一个 mal 值，并返回一个新的指向这个值的原子。
+- atom?: 判断输入的参数是不是原子，如果是，返回 true。
+- deref: 输入一个原子作为参数，返回这个原子所引用的值。
+- reset!: 输入一个原子以及一个 mal 值，修改原子，让它指向这个 mal 值，并返回这个 mal 值。
+- swap!: 输入一个原子，一个函数，以及零个或多个函数参数。将原子的值作为第一参数，并将余下的函数参数作为可选的参数传输函数中，将原子的值置为函数的求值结果。返回新的原子的值。(边注: Mal是单线程的，但在像Clojure之类的并发语言中，swap!将是一个原子操作，(swap! myatom (fn* [x] (+ 1 x)))总是会把myatom计数增加1，并且在原子被多个线程操作时不会导致结果出错)
+
+```lisp
+(def! *test-atom* (atom 0))
+=> (atom 0)
+
+(reset! *test-atom* 10)
+=> 10
+
+(deref *test-atom*)   | @*test-atom*
+=> 10
+
+(swap! *test-atom* (lamdba [x] (+ x 1)))
+=> 11
+```
+
+@ 是deref的语法糖

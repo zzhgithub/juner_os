@@ -3,8 +3,8 @@ use alloc::vec::Vec;
 use alloc::rc::Rc;
 use alloc::string::{String,ToString};
 use crate::mal::env::Env;
-use crate::mal::types::{MalRet,MalVal,MalArgs,error,func};
-use crate::mal::types::MalVal::{Int,Str,Bool,Nil,List,Vector,Sym};
+use crate::mal::types::{MalRet,MalVal,MalArgs,error,func,atom};
+use crate::mal::types::MalVal::{Int,Str,Bool,Nil,List,Vector,Sym,Atom};
 use crate::mal::types::MalErr::{ErrString,ErrMalVal};
 use crate::mal::env::{env_set,env_sets};
 use crate::mal::rep;
@@ -161,6 +161,12 @@ pub fn ns() -> Vec<(&'static str,MalVal)> {
         ("ture?",func(fn_is_type!(Bool(true)))),
         ("false?",func(fn_is_type!(Bool(false)))),
         ("symbol?",func(fn_is_type!(Sym(_)))),
+        // 原子操作
+        ("atom", func(|a| Ok(atom(&a[0])))),
+        ("atom?",func(fn_is_type!(Atom(_)))),
+        ("reset!", func(|a| a[0].reset_bang(&a[1]))),
+        ("deref", func(|a| a[0].deref())),
+        ("swap!", func(|a| a[0].swap_bang(&a[1..].to_vec()))),
     ]
 }
 
