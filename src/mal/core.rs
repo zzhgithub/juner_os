@@ -4,7 +4,7 @@ use alloc::rc::Rc;
 use alloc::string::{String,ToString};
 use crate::mal::env::Env;
 use crate::mal::types::{MalRet,MalVal,MalArgs,error,func};
-use crate::mal::types::MalVal::{Int,Str,Bool,Nil,List,Vector};
+use crate::mal::types::MalVal::{Int,Str,Bool,Nil,List,Vector,Sym};
 use crate::mal::types::MalErr::{ErrString,ErrMalVal};
 use crate::mal::env::{env_set,env_sets};
 use crate::mal::rep;
@@ -33,6 +33,18 @@ macro_rules! fn_str {
     }};
 }
 
+
+macro_rules! fn_is_type {
+    ($($ps:pat),*) => {{
+        |a:MalArgs| {Ok(Bool(match a[0] {$($ps => true,)* _=>false}))}
+    }};
+    ($p:pat if $e:expr) => {{
+        |a:MalArgs| { Ok(Bool(match a[0] { $p if $e => true, _ => false})) }
+    }};
+    ($p:pat if $e:expr,$($ps:pat),*) => {{
+        |a:MalArgs| { Ok(Bool(match a[0] { $p if $e => true, $($ps => true,)* _ => false})) }
+    }};
+}
 
 fn cons(a:MalArgs) -> MalRet {
     match a[1].clone() {
@@ -145,6 +157,10 @@ pub fn ns() -> Vec<(&'static str,MalVal)> {
         ("throw", func(|a| Err(ErrMalVal(a[0    ].clone())))),// 主动的抛出异常
         ("apply",func(apply)),
         ("map",func(map)),
+        ("nil?",func(fn_is_type!(Nil))),
+        ("ture?",func(fn_is_type!(Bool(true)))),
+        ("false?",func(fn_is_type!(Bool(false)))),
+        ("symbol?",func(fn_is_type!(Sym(_)))),
     ]
 }
 
