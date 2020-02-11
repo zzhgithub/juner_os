@@ -227,4 +227,14 @@ impl MalVal {
             _ => error("invalid type for count"),
         }
     }
+
+    // 将Str转换成关键字
+    pub fn keyword(&self) -> MalRet {
+        match self {
+            Str(s) if s.starts_with("\u{29e}") => Ok(Str(s.to_string())),
+            Str(s) => Ok(Str(format!("\u{29e}{}", s))),
+            _ => error("invalid type for keyword"),
+        }
+    }
+    
 }

@@ -4,13 +4,14 @@ use alloc::rc::Rc;
 use alloc::string::{String,ToString};
 use crate::mal::env::Env;
 use crate::mal::types::{MalRet,MalVal,MalArgs,error,func,atom};
-use crate::mal::types::MalVal::{Int,Str,Bool,Nil,List,Vector,Sym,Atom};
+use crate::mal::types::MalVal::{Int,Str,Bool,Nil,List,Vector,Sym,Atom,Func,MalFunc};
 use crate::mal::types::MalErr::{ErrString,ErrMalVal};
 use crate::mal::env::{env_set,env_sets};
 use crate::mal::rep;
 use crate::vec;
 use crate::list;
 use crate::println;
+use crate::vector;
 use crate::mal::reader::read_str;
 use crate::mal::printer::pr_seq;
 
@@ -117,6 +118,15 @@ fn apply(a:MalArgs) -> MalRet {
     }
 }
 
+// 生成一个符号
+fn symbol(a: MalArgs) -> MalRet {
+    match a[0] {
+        Str(ref s) => Ok(Sym(s.to_string())),
+        _ => error("illegal symbol call"),
+    }
+}
+
+
 fn map(a:MalArgs) -> MalRet {
     match a[1] {
         List(ref v,_) | Vector(ref v,_) => {
@@ -167,6 +177,34 @@ pub fn ns() -> Vec<(&'static str,MalVal)> {
         ("reset!", func(|a| a[0].reset_bang(&a[1]))),
         ("deref", func(|a| a[0].deref())),
         ("swap!", func(|a| a[0].swap_bang(&a[1..].to_vec()))),
+        // 生成一个符号
+        ("symbol",func(symbol)),
+        // 生成一个关键字 一个关键字是一个:开头的字符串!
+        ("keyword", func(|a| a[0].keyword())),
+        (
+            "keyword?",
+            func(fn_is_type!(Str(ref s) if s.starts_with("\u{29e}"))),
+        ),
+        // 判断是否是整形数字
+        ("number?", func(fn_is_type!(Int(_)))),
+        (
+            "lamdba?",
+            func(fn_is_type!(MalFunc{is_macro,..} if !is_macro,Func(_,_))),
+        ),
+        (
+            "macro?",
+            func(fn_is_type!(MalFunc{is_macro,..} if is_macro)),
+        ),
+        // 生成字符串并且打印
+        ("pr-str", func(|a| Ok(Str(pr_seq(&a, true, "", "", " "))))),
+        // 生成字符串不进行打印
+        ("str", func(|a| Ok(Str(pr_seq(&a, false, "", "", ""))))),
+        // 判断一个符号是否是 列表 或者 向量
+        ("sequential?", func(fn_is_type!(List(_, _), Vector(_, _)))),
+        ("list", func(|a| Ok(list!(a)))),
+        ("list?", func(fn_is_type!(List(_, _)))),
+        ("vector", func(|a| Ok(vector!(a)))),
+        ("vector?", func(fn_is_type!(Vector(_, _)))),
     ]
 }
 

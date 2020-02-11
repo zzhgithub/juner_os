@@ -153,11 +153,12 @@ pub fn test(){
         // "(apply + '(2 3))",
         // "(apply (lamdba [x y] (do (prn  x \"+\" y) (+ x y))) '(7 8))",
         // "(map (lamdba [x] (apply + x)) (list [1 2] [2 3]))",
-        "(def! *test-atom* (atom 0))",
-        "(reset! *test-atom* 10)",
-        "(deref *test-atom*)",
-        "(swap! *test-atom* (lamdba [x] (+ x 1)))",
-        "@*test-atom*",
+        // "(def! *test-atom* (atom 0))",
+        // "(reset! *test-atom* 10)",
+        // "(deref *test-atom*)",
+        // "(swap! *test-atom* (lamdba [x] (+ x 1)))",
+        // "@*test-atom*",
+        "(str \"sss\")",
     ];
 
     for line in code {
