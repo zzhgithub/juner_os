@@ -149,9 +149,10 @@ pub fn test(){
         // "(throw \"err1\")",
         // "(try* abc (catch* exc (prn \"exc is:\" exc)))",
         // "(try* (throw \"my exception\") (catch* exc (do (prn \"exc:\" exc) 7)))",
-        "(apply + (list 1 3))",
-        "(apply + '(2 3))",
-        "(apply (lamdba [x y] (do (prn  x \"+\" y) (+ x y))) '(7 8))"
+        // "(apply + (list 1 3))",
+        // "(apply + '(2 3))",
+        // "(apply (lamdba [x y] (do (prn  x \"+\" y) (+ x y))) '(7 8))",
+        "(map (lamdba [x] (apply + x)) (list [1 2] [2 3]))",
     ];
 
     for line in code {
