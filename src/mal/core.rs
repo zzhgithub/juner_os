@@ -92,6 +92,19 @@ fn rest(a:MalArgs) -> MalRet {
     }
 }
 
+fn apply(a:MalArgs) -> MalRet {
+    match a[a.len()-1]{
+        List(ref v,_) | Vector(ref v,_) =>{
+            let f = &a[0];
+            let mut fargs = a[1..a.len()-1].to_vec();
+            // Q: 这个的extend_from_slice的方法的文档
+            fargs.extend_from_slice(&v);
+            f.apply(fargs)
+        },
+        _ => error("apply called with no-seq")
+    }
+}
+
 pub fn ns() -> Vec<(&'static str,MalVal)> {
     vec![
         ("=", func(|a| Ok(Bool(a[0] == a[1])))),
@@ -117,6 +130,7 @@ pub fn ns() -> Vec<(&'static str,MalVal)> {
         ("count",func(|x| x[0].count())),// 获取列表 或者向量的长度
         ("empty?", func(|a| a[0].empty_q())), // 判断一个符号是否为空
         ("throw", func(|a| Err(ErrMalVal(a[0    ].clone())))),// 主动的抛出异常
+        ("apply",func(apply)),
     ]
 }
 
