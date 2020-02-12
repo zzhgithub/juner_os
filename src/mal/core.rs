@@ -268,9 +268,12 @@ pub fn ns() -> Vec<(&'static str,MalVal)> {
 
 fn mal() ->Vec<&'static str> {
     vec![
+        "(prn \"load core lisp Lib!\")",
+        "(def! *gensym-counter* (atom 0))",
+        "(def! gensym (lamdba [] (symbol (str \"G__\"(swap! *gensym-counter* (lamdba [x] (+ 1 x)))))))",
+        "(defmacro! or (v (& xs) (if (empty? xs) nil (if (= 1 (count xs)) (first xs) (let* (condvar (gensym)) `(let* (~condvar ~(first xs)) (if ~condvar ~condvar (or ~@(rest xs)))))))))",
         "(def! not (lamdba (a) (if a false true)))",
         "(defmacro! cond (lamdba (& xs) (if (> (count xs) 0) (list 'if (first xs) (if (> (count xs) 1) (nth xs 1) (throw \"odd number of forms to cond\")) (cons 'cond (rest (rest xs)))))))",
-        "(defmacro! or (lamdba (& xs) (if (empty? xs) nil (if (= 1 (count xs)) (first xs) `(let* (or_FIXME ~(first xs)) (if or_FIXME or_FIXME (or ~@(rest xs))))))))",
     ]
 }
 

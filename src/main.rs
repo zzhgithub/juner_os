@@ -159,14 +159,16 @@ pub fn test(){
         // "(swap! *test-atom* (lamdba [x] (+ x 1)))",
         // "@*test-atom*",
         // "(str \"sss\")",
-        "(def! test-hash (hash-map))",
-        "(assoc test-hash \"a\" 1)",
-        "(assoc test-hash \"b\" 2)",
-        "(get {\"a\" 1} \"a\")",
-        "(get {:a 10 :b {:c 3}} (keyword \"a\"))",
-        "(get {:a 10 :b {:c 3}} :b)",
-        "(keys {:a 1 :b 2 :c 3})",
-        
+        // "(def! test-hash (hash-map))",
+        // "(assoc test-hash \"a\" 1)",
+        // "(assoc test-hash \"b\" 2)",
+        // "(get {\"a\" 1} \"a\")",
+        // "(get {:a 10 :b {:c 3}} (keyword \"a\"))",
+        // "(get {:a 10 :b {:c 3}} :b)",
+        // "(keys {:a 1 :b 2 :c 3})",
+        // "(not true)",
+        "(gensym)",
+        "(gensym)",
     ];
 
     for line in code {
