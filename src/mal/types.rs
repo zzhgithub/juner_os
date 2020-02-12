@@ -156,6 +156,19 @@ impl PartialEq for MalVal {
     }
 }
 
+// 删除hash map 中指定的key, 并且返回 删除后的map,不改变原来的值
+pub fn _dissoc(mut hm: HashMap<String, MalVal>, ks: MalArgs) -> MalRet {
+    for k in ks.iter() {
+        match k {
+            Str(ref s) => {
+                hm.remove(s);
+            }
+            _ => return error("key is not string"),
+        }
+    }
+    Ok(Hash(Rc::new(hm), Rc::new(Nil)))
+}
+
 impl MalVal {
 
     pub fn apply(&self, args: MalArgs) -> MalRet {
@@ -236,5 +249,5 @@ impl MalVal {
             _ => error("invalid type for keyword"),
         }
     }
-    
+
 }

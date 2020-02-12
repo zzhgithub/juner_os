@@ -3,8 +3,8 @@ use alloc::vec::Vec;
 use alloc::rc::Rc;
 use alloc::string::{String,ToString};
 use crate::mal::env::Env;
-use crate::mal::types::{MalRet,MalVal,MalArgs,error,func,atom};
-use crate::mal::types::MalVal::{Int,Str,Bool,Nil,List,Vector,Sym,Atom,Func,MalFunc};
+use crate::mal::types::{MalRet,MalVal,MalArgs,error,func,atom,hash_map,_assoc,_dissoc};
+use crate::mal::types::MalVal::{Int,Str,Bool,Nil,List,Vector,Sym,Atom,Func,MalFunc,Hash};
 use crate::mal::types::MalErr::{ErrString,ErrMalVal};
 use crate::mal::env::{env_set,env_sets};
 use crate::mal::rep;
@@ -140,6 +140,55 @@ fn map(a:MalArgs) -> MalRet {
     }
 }
 
+// 向hash map 中添加新的 key-value不改变原理的值 返回新的hashmap
+fn assoc(a:MalArgs) -> MalRet {
+    match a[0] {
+        Hash(ref hm,_) => _assoc((**hm).clone(), a[1..].to_vec()),
+        _ => error("assoc on non-Hash Map")
+    }
+}
+
+fn dissoc(a:MalArgs) -> MalRet {
+    match a[0] {
+        Hash(ref hm,_) => _dissoc((**hm).clone(), a[1..].to_vec()),
+        _ => error("dissoc on non-Hash Map"), 
+    }
+}
+
+// 通过关键字获取 vlaue的值
+fn get(a:MalArgs) -> MalRet {
+    match (a[0].clone(),a[1].clone()){
+        (Nil,_) => Ok(Nil),
+        (Hash(ref hm,_),Str(ref s)) => match hm.get(s) {
+            Some(mv) => Ok(mv.clone()),
+            None => Ok(Nil),
+        },
+        _ => error("illegal get args"),
+    }
+}
+
+// hash map 是否包含某个key
+fn contains_q(a:MalArgs) -> MalRet {
+    match (a[0].clone(),a[1].clone()){
+        (Hash(ref hm,_),Str(ref s)) => Ok(Bool(hm.contains_key(s))),
+        _ => error("illefal contains args"),
+    }
+}
+
+fn keys(a: MalArgs) -> MalRet {
+    match a[0] {
+        Hash(ref hm, _) => Ok(list!(hm.keys().map(|k| { Str(k.to_string()) }).collect())),
+        _ => error("keys requires Hash Map"),
+    }
+}
+
+fn vals(a: MalArgs) -> MalRet {
+    match a[0] {
+        Hash(ref hm, _) => Ok(list!(hm.values().map(|v| { v.clone() }).collect())),
+        _ => error("vals requires Hash Map"),
+    }
+}
+
 pub fn ns() -> Vec<(&'static str,MalVal)> {
     vec![
         ("=", func(|a| Ok(Bool(a[0] == a[1])))),
@@ -205,6 +254,15 @@ pub fn ns() -> Vec<(&'static str,MalVal)> {
         ("list?", func(fn_is_type!(List(_, _)))),
         ("vector", func(|a| Ok(vector!(a)))),
         ("vector?", func(fn_is_type!(Vector(_, _)))),
+        // 哈希表支持的方法
+        ("hash-map",func(|a| hash_map(a))),
+        ("map?",func(fn_is_type!(Hash(_,_)))),
+        ("assoc",func(assoc)),
+        ("dissoc",func(dissoc)),
+        ("get",func(get)),
+        ("contains?",func(contains_q)),
+        ("keys",func(keys)),
+        ("vals",func(vals)),
     ]
 }
 
