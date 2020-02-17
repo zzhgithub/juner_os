@@ -167,8 +167,10 @@ pub fn test(){
         // "(get {:a 10 :b {:c 3}} :b)",
         // "(keys {:a 1 :b 2 :c 3})",
         // "(not true)",
-        "(gensym)",
-        "(gensym)",
+        // "(gensym)",
+        // "(gensym)",
+        "((lamdba (cont) (cont 2)) (lamdba [x] (+ 1 x)))",
+        "((lamdba [x] \"hi\") (lamdba [x] \"hi\"))",
     ];
 
     for line in code {
