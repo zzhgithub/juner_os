@@ -75,6 +75,7 @@ pub fn env_bind(outer: Option<Env>, mbinds: MalVal, exprs: Vec<MalVal>) -> Resul
         List(binds, _) | Vector(binds, _) => {
             for (i, b) in binds.iter().enumerate() {
                 match b {
+                    // 这个特性保证 & 后面的其他参数都进入到一个list里面
                     Sym(s) if s == "&" => {
                         env_set(&env, binds[i + 1].clone(), list!(exprs[i..].to_vec()))?;
                         break;

@@ -169,8 +169,16 @@ pub fn test(){
         // "(not true)",
         // "(gensym)",
         // "(gensym)",
-        "((lamdba (cont) (cont 2)) (lamdba [x] (+ 1 x)))",
-        "((lamdba [x] \"hi\") (lamdba [x] \"hi\"))",
+        // "((lamdba (cont) (cont 2)) (lamdba [x] (+ 1 x)))",
+        // "((lamdba [x] \"hi\") (lamdba [x] \"hi\"))",
+        "
+            (def! ten-test (lamdba [data]
+                (cond
+                    (> data 10) 1
+                    (= data 10) 0
+                    (< data 10) -1)))
+        ",
+        "(ten-test 15)",
     ];
 
     for line in code {
