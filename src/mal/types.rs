@@ -18,7 +18,7 @@ pub enum MalVal{
     List(Rc<Vec<MalVal>>, Rc<MalVal>),  // 列表类型
     Vector(Rc<Vec<MalVal>>, Rc<MalVal>), // 向量类型
     Hash(Rc<HashMap<String,MalVal>>,Rc<MalVal>), // hashMap 类型
-    Func(fn(MalArgs) -> MalRet,Rc<MalVal>), //函数 相当于 lamdba (x)-> M
+    Func(fn(MalArgs) -> MalRet,Rc<MalVal>), //函数 相当于 lambda (x)-> M
     MalFunc {
         eval: fn(ast: MalVal, env: Env) -> MalRet,
         ast: Rc<MalVal>, // 函数 抽象语法树

@@ -237,7 +237,7 @@ pub fn ns() -> Vec<(&'static str,MalVal)> {
         // 判断是否是整形数字
         ("number?", func(fn_is_type!(Int(_)))),
         (
-            "lamdba?",
+            "lambda?",
             func(fn_is_type!(MalFunc{is_macro,..} if !is_macro,Func(_,_))),
         ),
         (
@@ -270,10 +270,10 @@ fn mal() ->Vec<&'static str> {
     vec![
         "(prn \"load core lisp Lib!\")",
         "(def! *gensym-counter* (atom 0))",
-        "(def! gensym (lamdba [] (symbol (str \"G__\"(swap! *gensym-counter* (lamdba [x] (+ 1 x)))))))",
+        "(def! gensym (lambda [] (symbol (str \"G__\"(swap! *gensym-counter* (lambda [x] (+ 1 x)))))))",
         "(defmacro! or (v (& xs) (if (empty? xs) nil (if (= 1 (count xs)) (first xs) (let* (condvar (gensym)) `(let* (~condvar ~(first xs)) (if ~condvar ~condvar (or ~@(rest xs)))))))))",
-        "(def! not (lamdba (a) (if a false true)))",
-        "(defmacro! cond (lamdba (& xs) (if (> (count xs) 0) (list 'if (first xs) (if (> (count xs) 1) (nth xs 1) (throw \"odd number of forms to cond\")) (cons 'cond (rest (rest xs)))))))",
+        "(def! not (lambda (a) (if a false true)))",
+        "(defmacro! cond (lambda (& xs) (if (> (count xs) 0) (list 'if (first xs) (if (> (count xs) 1) (nth xs 1) (throw \"odd number of forms to cond\")) (cons 'cond (rest (rest xs)))))))",
     ]
 }
 

@@ -158,7 +158,7 @@ fn eval(mut ast: MalVal,mut env: Env) -> MalRet {
                         continue 'tco;
                     }
                     // 定义闭包函数的语法
-                    Sym(a0sym) if a0sym == "lamdba" => {
+                    Sym(a0sym) if a0sym == "lambda" => {
                         let (a1,a2) = (l[1].clone(),l[2].clone());
                         Ok(MalFunc {
                             eval: eval,

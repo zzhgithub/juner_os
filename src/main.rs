@@ -115,7 +115,7 @@ pub fn test(){
     
     let code = vec![
         // "(= 2 2)",
-        // "(def! plus3 (lamdba [x] (+ 3 x)))",
+        // "(def! plus3 (lambda [x] (+ 3 x)))",
         // "(plus3 3)",
         // "(not false)",
         // "(do (+ 1 2) (* 3 3) 5)",
@@ -136,7 +136,7 @@ pub fn test(){
         // "(cons 1 [2 3])",
         // "(concat [1 2] (list 3 4) [5 6])",
         // "(concat [1 2])"
-        // "(defmacro! unless (lamdba (pred a b) `(if ~pred ~b ~a)))",
+        // "(defmacro! unless (lambda (pred a b) `(if ~pred ~b ~a)))",
         // "(unless false 7 8)",
         // "(macroexpand (unless false 7 8))"
         // "(nth [1 2 3] 0)",
@@ -151,12 +151,12 @@ pub fn test(){
         // "(try* (throw \"my exception\") (catch* exc (do (prn \"exc:\" exc) 7)))",
         // "(apply + (list 1 3))",
         // "(apply + '(2 3))",
-        // "(apply (lamdba [x y] (do (prn  x \"+\" y) (+ x y))) '(7 8))",
-        // "(map (lamdba [x] (apply + x)) (list [1 2] [2 3]))",
+        // "(apply (lambda [x y] (do (prn  x \"+\" y) (+ x y))) '(7 8))",
+        // "(map (lambda [x] (apply + x)) (list [1 2] [2 3]))",
         // "(def! *test-atom* (atom 0))",
         // "(reset! *test-atom* 10)",
         // "(deref *test-atom*)",
-        // "(swap! *test-atom* (lamdba [x] (+ x 1)))",
+        // "(swap! *test-atom* (lambda [x] (+ x 1)))",
         // "@*test-atom*",
         // "(str \"sss\")",
         // "(def! test-hash (hash-map))",
@@ -169,16 +169,17 @@ pub fn test(){
         // "(not true)",
         // "(gensym)",
         // "(gensym)",
-        // "((lamdba (cont) (cont 2)) (lamdba [x] (+ 1 x)))",
-        // "((lamdba [x] \"hi\") (lamdba [x] \"hi\"))",
-        "
-            (def! ten-test (lamdba [data]
-                (cond
-                    (> data 10) 1
-                    (= data 10) 0
-                    (< data 10) -1)))
-        ",
-        "(ten-test 15)",
+        // "((lambda (cont) (cont 2)) (lambda [x] (+ 1 x)))",
+        // "((lambda [x] \"hi\") (lambda [x] \"hi\"))",
+        // "
+        //     (def! ten-test (lambda [data]
+        //         (cond
+        //             (> data 10) 1
+        //             (= data 10) 0
+        //             (< data 10) -1)))
+        // ",
+        // "(ten-test 15)",
+        "(def! call/cc (lambda))"
     ];
 
     for line in code {

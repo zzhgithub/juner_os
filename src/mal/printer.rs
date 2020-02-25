@@ -48,7 +48,7 @@ impl MalVal {
             Func(f, _) => format!("#<fn {:?}>", f),
             MalFunc {
                 ast: a, params: p, ..
-            } => format!("(lamdba {} {})", p.pr_str(true), a.pr_str(true)),
+            } => format!("(lambda {} {})", p.pr_str(true), a.pr_str(true)),
             Atom(a) => format!("(atom {})", a.borrow().pr_str(true)),
         }
     }

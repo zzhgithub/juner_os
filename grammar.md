@@ -33,10 +33,10 @@ example:
 使用let* 临时赋值
 
 
-### lamdba
+### lambda
 
 ```
-((lamdba [x] (+ 1 x)) 1)
+((lambda [x] (+ 1 x)) 1)
 => 2
 ```
 定义一个闭包过程。可以和def!组合起来定义一个函数。
@@ -171,7 +171,7 @@ quasiquote 、 unquote 和 splice-unquote 的语法糖。
 宏定义 定义一个符号。它的返回值会被继续当做ast进行求值。所有这里可以广泛的运用到之前的' ` ～ ～@ d等语法糖。  
 宏展开。展开一个宏，只计算出它要求值的ast而不进行求值。
 ```lisp
-(defmacro! unless (lamdba (pred a b) `(if ~pred ~b ~a)))
+(defmacro! unless (lambda (pred a b) `(if ~pred ~b ~a)))
 
 => ...（此处省略）
 
@@ -251,7 +251,7 @@ try-catch代码块和其他 语言的try-catch并没有什么特别的不同。t
 (apply + '(2 3))
 => 5
 
-(apply (lamdba [x y] (do (prn  x "+" y) (+ x y))) '(7 8))
+(apply (lambda [x y] (do (prn  x "+" y) (+ x y))) '(7 8))
 => 7 "+" 8
 => 15
 ```
@@ -262,7 +262,7 @@ try-catch代码块和其他 语言的try-catch并没有什么特别的不同。t
 
 ```lisp
 
-(map (lamdba [x] (apply + x)) (list [1 2] [2 3]))
+(map (lambda [x] (apply + x)) (list [1 2] [2 3]))
 => (3 5)
 
 ```
@@ -293,7 +293,7 @@ try-catch代码块和其他 语言的try-catch并没有什么特别的不同。t
 (deref *test-atom*)   | @*test-atom*
 => 10
 
-(swap! *test-atom* (lamdba [x] (+ x 1)))
+(swap! *test-atom* (lambda [x] (+ x 1)))
 => 11
 ```
 
@@ -327,7 +327,7 @@ try-catch代码块和其他 语言的try-catch并没有什么特别的不同。t
 ### cond 多条件
 有偶数个参数一个是条件一个是返回的值
 ```lisp
-(def! ten-test (lamdba [data]
+(def! ten-test (lambda [data]
                 (cond
                     (> data 10) 1
                     (= data 10) 0
