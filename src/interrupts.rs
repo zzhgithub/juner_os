@@ -61,7 +61,7 @@ extern "x86-interrupt" fn breakpoint_handler(stack_frame: &mut InterruptStackFra
 extern "x86-interrupt" fn double_fault_handler(
     stack_frame: &mut InterruptStackFrame,
     _error_code: u64,
-) {
+) -> !{
     panic!("EXCEPTION: DOUBLE FAULT\n{:#?}", stack_frame);
 }
 
@@ -97,12 +97,12 @@ extern "x86-interrupt" fn timer_interrupt_handler(_stack_frame: &mut InterruptSt
 
 extern "x86-interrupt" fn keyboard_interrupt_handler(_stack_frame: &mut InterruptStackFrame) {
     use x86_64::instructions::port::Port;
-    use pc_keyboard::{Keyboard, ScancodeSet1, DecodedKey, layouts};
+    use pc_keyboard::{Keyboard, ScancodeSet1, DecodedKey, layouts,HandleControl};
     use spin::Mutex;
 
     lazy_static! {
         static ref KEYBOARD: Mutex<Keyboard<layouts::Us104Key, ScancodeSet1>> =
-            Mutex::new(Keyboard::new(layouts::Us104Key, ScancodeSet1));
+            Mutex::new(Keyboard::new(layouts::Us104Key, ScancodeSet1,HandleControl::Ignore));
     }
 
     let mut keyboard = KEYBOARD.lock();

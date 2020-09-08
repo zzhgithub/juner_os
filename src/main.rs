@@ -167,8 +167,8 @@ pub fn test(){
         // "(get {:a 10 :b {:c 3}} :b)",
         // "(keys {:a 1 :b 2 :c 3})",
         // "(not true)",
-        // "(gensym)",
-        // "(gensym)",
+        "(gensym)",
+        "(gensym)",
         // "((lambda (cont) (cont 2)) (lambda [x] (+ 1 x)))",
         // "((lambda [x] \"hi\") (lambda [x] \"hi\"))",
         // "
@@ -179,7 +179,7 @@ pub fn test(){
         //             (< data 10) -1)))
         // ",
         // "(ten-test 15)",
-        "(def! call/cc (lambda))"
+        // "(def! call/cc (lambda))"
     ];
 
     for line in code {
