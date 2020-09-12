@@ -20,7 +20,7 @@ pub async fn mal_repl() {
     use crate::mal::core::load_core;
     load_core(&kernel_env);
     head();
-    print!("IN:");
+    print!("[IN]:");
     while let Some(scancode) = scancodes.next().await {
         if let Ok(Some(key_event)) = keyboard.add_byte(scancode) {
             if let Some(key) = keyboard.process_keyevent(key_event) {
@@ -40,14 +40,14 @@ pub async fn mal_repl() {
                                 }
                             }
                             '\n' => {
-                                println!("runing: {}", crate::stdio::STDIN.to_string().as_str());
+                                // println!("runing: {}", crate::stdio::STDIN.to_string().as_str());
+                                println!();
                                 match rep(crate::stdio::STDIN.to_string().as_str(), &kernel_env) {
-                                    Ok(out) => println!("OUT:{}", out),
-                                    Err(e) => println!("OUT:{}", format_error(e)),
+                                    Ok(out) => println!(">>:{}", out),
+                                    Err(e) => println!(">>:{}", format_error(e)),
                                 }
                                 crate::stdio::STDIN.clear();
-                                println!();
-                                print!("IN:");
+                                print!("[IN]:");
                             }
                             _ => {
                                 crate::stdio::STDIN.push(character);
@@ -67,12 +67,11 @@ pub async fn mal_repl() {
                             println!("runing: {}", crate::stdio::STDIN.to_string().as_str());
                             // 程序代码读到 mal 中求值
                             match rep(crate::stdio::STDIN.to_string().as_str(), &kernel_env) {
-                                Ok(out) => println!("OUT:{}", out),
-                                Err(e) => println!("OUT:{}", format_error(e)),
+                                Ok(out) => println!(">>:{}", out),
+                                Err(e) => println!(">>:{}", format_error(e)),
                             }
                             crate::stdio::STDIN.clear();
-                            println!();
-                            print!("IN:");
+                            print!("[IN]:");
                         }
                         _ => print!("{:?}", key),
                     },
@@ -106,13 +105,13 @@ pub fn head() {
     println!("since:2019");
     println!("you can use MAL a small lisp!");
     println!();
-    let mut i = 0;
-    loop {
-        if i < 4 {
-            println!();
-            i = i + 1;
-        } else {
-            break;
-        }
-    }
+    // let mut i = 0;
+    // loop {
+    //     if i < 4 {
+    //         println!();
+    //         i = i + 1;
+    //     } else {
+    //         break;
+    //     }
+    // }
 }

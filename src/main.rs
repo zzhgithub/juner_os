@@ -24,15 +24,6 @@ pub mod stdio;
 pub mod task;
 mod vga_buffer;
 
-async fn async_number() -> u32 {
-    42
-}
-
-async fn example_task() {
-    let number = async_number().await;
-    println!("async number: {}", number);
-}
-
 #[global_allocator]
 static ALLOCATOR: LockedHeap = LockedHeap::empty();
 
@@ -67,7 +58,6 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
 
     // 启动任务执行器
     let mut executor = Executor::new();
-    executor.spawn(Task::new(example_task()));
     executor.spawn(Task::new(mal::shell::mal_repl()));
     executor.run();
     hlt_loop();
