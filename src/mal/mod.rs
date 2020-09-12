@@ -12,6 +12,7 @@ pub mod reader;
 pub mod env;
 pub mod printer;
 pub mod core;
+pub mod shell;
 
 use crate::mal::types::MalVal::{List,Sym,Str,Vector,Hash,Nil,Int,MalFunc,Bool,Func};
 use crate::mal::types::{error,MalRet,MalArgs,MalVal,MalErr};

@@ -14,7 +14,6 @@ impl Stdin {
     // 进入输入缓存
     pub fn push(&self,c:char){
         self.buf.lock().push_back(c);
-        // todo
     }
 
     pub fn pop(&self) -> char{
@@ -23,7 +22,7 @@ impl Stdin {
             match buf_lock.pop_front() {
                 Some(c) => return c,
                 None => {
-                    // TODO 这里要等待 有人使用这个锁 
+                    // TODO 这里要等待 有人使用这个锁
                     print!("the loop！");
                 }
             }
