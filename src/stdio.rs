@@ -1,8 +1,8 @@
-use alloc::{collections::vec_deque::VecDeque, string::String, sync::Arc};
-use spin::Mutex;
 use crate::print;
-
+use crate::println;
+use alloc::{collections::vec_deque::VecDeque, string::String, sync::Arc};
 use lazy_static::lazy_static;
+use spin::Mutex;
 
 #[derive(Default)]
 pub struct Stdin {
@@ -10,13 +10,12 @@ pub struct Stdin {
 }
 
 impl Stdin {
-
     // 进入输入缓存
-    pub fn push(&self,c:char){
+    pub fn push(&self, c: char) {
         self.buf.lock().push_back(c);
     }
 
-    pub fn pop(&self) -> char{
+    pub fn pop(&self) -> char {
         loop {
             let mut buf_lock = self.buf.lock();
             match buf_lock.pop_front() {
@@ -29,32 +28,36 @@ impl Stdin {
         }
     }
     // 输入缓存 传到字符串
-    pub fn to_string(&self) -> String{
+    pub fn to_string(&self) -> String {
         let buf_lock = self.buf.lock();
         buf_lock.iter().cloned().collect::<String>()
     }
 
+    pub fn len(&self)-> usize {
+        let buf_lock = self.buf.lock();
+        buf_lock.len()
+    }
+
     // 清空输入缓存
-    pub fn clear(&self){
+    pub fn clear(&self) {
         let mut buf_lock = self.buf.lock();
         buf_lock.clear();
     }
 
     // 删除一个字符并且 返回剩余的长度
-    pub fn back_spacse(&self)-> usize {
+    pub fn back_spacse(&self) -> usize {
         let mut buf_lock = self.buf.lock();
-        match buf_lock.pop_front() {
-            Some(c) => buf_lock.len(),
-            None => 0 as usize,
+        if buf_lock.len() > 0 {
+            match buf_lock.pop_back() {
+                Some(c) => buf_lock.len(),
+                None => 0 as usize,
+            }
+        } else {
+            0 as usize
         }
     }
 }
 
 lazy_static! {
     pub static ref STDIN: Arc<Stdin> = Arc::new(Stdin::default());
-}
-
-//获取一个字符串 作为u8
-pub fn get_char() -> u8 {
-    crate::stdio::STDIN.pop() as u8
 }

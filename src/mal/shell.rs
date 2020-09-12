@@ -1,3 +1,4 @@
+use crate::del;
 use crate::mal::env::env_new;
 use crate::mal::env::Env;
 use crate::mal::rep;
@@ -6,7 +7,9 @@ use crate::print;
 use crate::println;
 use crate::task::keyboard::ScancodeStream;
 use futures_util::stream::StreamExt;
-use pc_keyboard::{layouts, DecodedKey, HandleControl, KeyCode, Keyboard, ScancodeSet1};
+use pc_keyboard::{
+    layouts, DecodedKey, HandleControl, KeyCode, Keyboard, ScancodeSet1, ScancodeSet2,
+};
 
 pub async fn mal_repl() {
     let mut scancodes = ScancodeStream::new();
@@ -49,6 +52,13 @@ pub async fn mal_repl() {
                                 crate::stdio::STDIN.clear();
                                 print!("[IN]:");
                             }
+                            // 删除和回退
+                            '\u{0008}' | '\u{007f}' => {
+                                if crate::stdio::STDIN.len() > 0 {
+                                    crate::stdio::STDIN.back_spacse();
+                                    del!();
+                                }
+                            }
                             _ => {
                                 crate::stdio::STDIN.push(character);
                                 print!("{}", character);
@@ -59,6 +69,8 @@ pub async fn mal_repl() {
                         KeyCode::Backspace | KeyCode::Delete => {
                             crate::stdio::STDIN.back_spacse();
                             // todo 要显示的内容也要删除
+                            del!();
+                            print!("del!");
                         }
                         KeyCode::ControlLeft | KeyCode::ControlRight => {
                             downContrl = true;
@@ -73,7 +85,10 @@ pub async fn mal_repl() {
                             crate::stdio::STDIN.clear();
                             print!("[IN]:");
                         }
-                        _ => print!("{:?}", key),
+                        _ => {
+                            println!("in Raw key!");
+                            print!("{:?}", key)
+                        }
                     },
                 }
             }

@@ -1,6 +1,5 @@
-use volatile::Volatile;
 use core::fmt;
-
+use volatile::Volatile;
 
 #[allow(dead_code)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -49,7 +48,6 @@ struct Buffer {
     chars: [[Volatile<ScreenChar>; BUFFER_WIDTH]; BUFFER_HEIGHT],
 }
 
-
 pub struct Writer {
     column_position: usize,
     color_code: ColorCode,
@@ -76,6 +74,33 @@ impl Writer {
                 self.column_position += 1;
             }
         }
+    }
+
+    pub fn delete(&mut self) {
+        // 删除一个字符
+        let row = BUFFER_HEIGHT - 1;
+        if self.column_position == 0 {
+            // 删除一行的操作
+            self.del_line();
+        }
+        let col = self.column_position - 1;
+        let color_code = self.color_code;
+        self.buffer.chars[row][col].write(ScreenChar {
+            ascii_character: b' ',
+            color_code,
+        });
+        self.column_position = self.column_position - 1;
+    }
+
+    fn del_line(&mut self) {
+        for row in 0..(BUFFER_HEIGHT - 1) {
+            for col in 0..BUFFER_WIDTH {
+                let character = self.buffer.chars[row][col].read();
+                self.buffer.chars[row - 1][col].write(character);
+            }
+        }
+        // 第一行怎么处理？
+        self.column_position = BUFFER_WIDTH - 1;
     }
 
     fn new_line(&mut self) {
@@ -107,11 +132,9 @@ impl Writer {
                 // 不包含在上述范围之内的字节
                 _ => self.write_byte(0xfe),
             }
-
         }
     }
 }
-
 
 impl fmt::Write for Writer {
     fn write_str(&mut self, s: &str) -> fmt::Result {
@@ -120,19 +143,16 @@ impl fmt::Write for Writer {
     }
 }
 
-
 use lazy_static::lazy_static;
 use spin::Mutex;
 
-
 lazy_static! {
-    pub static ref WRITER:Mutex<Writer> =Mutex::new(Writer {
+    pub static ref WRITER: Mutex<Writer> = Mutex::new(Writer {
         column_position: 0,
         color_code: ColorCode::new(Color::Yellow, Color::Black),
         buffer: unsafe { &mut *(0xb8000 as *mut Buffer) },
     });
 }
-
 
 #[macro_export]
 macro_rules! print {
@@ -145,6 +165,13 @@ macro_rules! println {
     ($($arg:tt)*) => ($crate::print!("{}\n", format_args!($($arg)*)));
 }
 
+#[macro_export]
+macro_rules! del {
+    () => {
+        $crate::vga_buffer::_del()
+    };
+}
+
 #[doc(hidden)]
 pub fn _print(args: fmt::Arguments) {
     use core::fmt::Write;
@@ -153,4 +180,12 @@ pub fn _print(args: fmt::Arguments) {
     interrupts::without_interrupts(|| {
         WRITER.lock().write_fmt(args).unwrap();
     });
+}
+
+pub fn _del() {
+    use x86_64::instructions::interrupts;
+    // 临时暂停中断
+    interrupts::without_interrupts(|| {
+        WRITER.lock().delete();
+    })
 }
