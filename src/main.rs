@@ -1,4 +1,5 @@
 #![no_std]
+#![feature(llvm_asm)]
 #![no_main]
 #![feature(abi_x86_interrupt)]
 #![feature(alloc_error_handler)]
@@ -11,8 +12,7 @@ use bootloader::{entry_point, BootInfo};
 use core::panic::PanicInfo;
 use linked_list_allocator::LockedHeap;
 use log::*;
-use task::keyboard;
-use task::{executor::Executor, Task}; // new
+use task::{executor::Executor, Task};
 
 pub mod allocator;
 pub mod gdt;
