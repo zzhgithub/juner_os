@@ -3,6 +3,7 @@
 #![feature(abi_x86_interrupt)]
 #![feature(alloc_error_handler)]
 #![feature(box_syntax)]
+#![feature(wake_trait)]
 extern crate alloc;
 extern crate rlibc;
 
@@ -11,7 +12,7 @@ use core::panic::PanicInfo;
 use linked_list_allocator::LockedHeap;
 use log::*;
 use task::keyboard;
-use task::{simple_executor::SimpleExecutor, Task}; // new
+use task::{executor::Executor, Task}; // new
 
 pub mod allocator;
 pub mod gdt;
@@ -65,7 +66,7 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
     allocator::init_heap(&mut mapper, &mut frame_allocator).expect("heap initialization failed");
 
     // 启动任务执行器
-    let mut executor = SimpleExecutor::new();
+    let mut executor = Executor::new();
     executor.spawn(Task::new(example_task()));
     executor.spawn(Task::new(keyboard::print_keypresses()));
     executor.run();
