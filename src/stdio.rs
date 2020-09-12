@@ -34,7 +34,7 @@ impl Stdin {
         let buf_lock = self.buf.lock();
         buf_lock.iter().cloned().collect::<String>()
     }
-    
+
     // 清空输入缓存
     pub fn clear(&self){
         let mut buf_lock = self.buf.lock();

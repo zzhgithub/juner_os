@@ -4,20 +4,33 @@
 #![feature(alloc_error_handler)]
 #![feature(box_syntax)]
 extern crate alloc;
+extern crate rlibc;
 
+use bootloader::{entry_point, BootInfo};
 use core::panic::PanicInfo;
-use bootloader::{BootInfo, entry_point};
 use linked_list_allocator::LockedHeap;
 use log::*;
+use task::keyboard;
+use task::{simple_executor::SimpleExecutor, Task}; // new
 
-mod vga_buffer;
+pub mod allocator;
 pub mod gdt;
 pub mod interrupts;
-pub mod memory;
-pub mod allocator;
-pub mod stdio;
-pub mod serial;
 pub mod mal;
+pub mod memory;
+pub mod serial;
+pub mod stdio;
+pub mod task;
+mod vga_buffer;
+
+async fn async_number() -> u32 {
+    42
+}
+
+async fn example_task() {
+    let number = async_number().await;
+    println!("async number: {}", number);
+}
 
 #[global_allocator]
 static ALLOCATOR: LockedHeap = LockedHeap::empty();
@@ -37,21 +50,26 @@ fn panic(info: &PanicInfo) -> ! {
 // 函数入口
 entry_point!(kernel_main);
 
-fn kernel_main(boot_info:&'static BootInfo)-> !{
+fn kernel_main(boot_info: &'static BootInfo) -> ! {
+    use memory::BootInfoFrameAllocator;
     use x86_64::structures::paging::mapper::MapperAllSizes;
     use x86_64::structures::paging::Page;
     use x86_64::VirtAddr;
-    use memory::BootInfoFrameAllocator;
     println!("Hello World {}", ",my friends!");
     init();
     let phys_mem_offset = VirtAddr::new(boot_info.physical_memory_offset);
     // new: initialize a mapper
     let mut mapper = unsafe { memory::init(phys_mem_offset) };
-    let mut frame_allocator = unsafe { BootInfoFrameAllocator::init(&boot_info.memory_map)};
+    let mut frame_allocator = unsafe { BootInfoFrameAllocator::init(&boot_info.memory_map) };
     // init heap 初始化堆
-    allocator::init_heap(&mut mapper, &mut frame_allocator)
-        .expect("heap initialization failed");
-    
+    allocator::init_heap(&mut mapper, &mut frame_allocator).expect("heap initialization failed");
+
+    // 启动任务执行器
+    let mut executor = SimpleExecutor::new();
+    executor.spawn(Task::new(example_task()));
+    executor.spawn(Task::new(keyboard::print_keypresses()));
+    executor.run();
+
     test();
     hlt_loop();
 }
@@ -74,24 +92,22 @@ pub fn init() {
     unsafe { interrupts::PICS.lock().initialize() };
     // 允许时间中断
     x86_64::instructions::interrupts::enable();
-    
+
     println!("init end");
 }
 
-
-fn init_log(){
+fn init_log() {
     struct SimpleLogger;
     impl Log for SimpleLogger {
-        fn enabled(&self,metadata: &Metadata)-> bool{
+        fn enabled(&self, metadata: &Metadata) -> bool {
             true
         }
 
-        fn log(&self,record: &Record){
-            println!("[{:>5}] {}",record.level(),record.args());
+        fn log(&self, record: &Record) {
+            println!("[{:>5}] {}", record.level(), record.args());
         }
-        
-        fn flush(&self){
-        }
+
+        fn flush(&self) {}
     }
 
     static LOGGER: SimpleLogger = SimpleLogger;
@@ -99,20 +115,19 @@ fn init_log(){
     set_max_level(LevelFilter::Trace);
 }
 
-
-pub fn test(){
-    use crate::mal::rep;
+pub fn test() {
     use crate::mal::env::Env;
-    use crate::mal::env::{env_new,env_sets};
-    use crate::mal::types::MalArgs;
-    use crate::mal::types::func;// 这个方法可以用 rust的闭包生成一个lisp的函数
+    use crate::mal::env::{env_new, env_sets};
+    use crate::mal::rep;
     use crate::mal::types::format_error;
-     
+    use crate::mal::types::func; // 这个方法可以用 rust的闭包生成一个lisp的函数
+    use crate::mal::types::MalArgs;
+
     // FIXME: 这里的注释识别有一些问题！！！ 不能正常的识别双引号
-    let kernel_env:Env = env_new(None);
+    let kernel_env: Env = env_new(None);
     use crate::mal::core::load_core;
     load_core(&kernel_env);
-    
+
     let code = vec![
         // "(= 2 2)",
         // "(def! plus3 (lambda [x] (+ 3 x)))",
@@ -183,10 +198,9 @@ pub fn test(){
     ];
 
     for line in code {
-        match rep(line,&kernel_env){
-            Ok(out) => println!("{}",out),
-            Err(e) => println!("{}",format_error(e)),
+        match rep(line, &kernel_env) {
+            Ok(out) => println!("{}", out),
+            Err(e) => println!("{}", format_error(e)),
         }
     }
-    
 }

@@ -14,7 +14,7 @@ pub enum MalVal{
     Bool(bool), //布尔类型
     Int(i64),   // int类型
     Str(String), // 字符串类型
-    Sym(String), 
+    Sym(String),
     List(Rc<Vec<MalVal>>, Rc<MalVal>),  // 列表类型
     Vector(Rc<Vec<MalVal>>, Rc<MalVal>), // 向量类型
     Hash(Rc<HashMap<String,MalVal>>,Rc<MalVal>), // hashMap 类型
