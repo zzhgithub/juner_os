@@ -21,8 +21,8 @@ pub async fn mal_repl() {
     // 初始化环境
     let kernel_env: Env = env_new(None);
     use crate::mal::core::load_core;
-    load_core(&kernel_env);
     head();
+    load_core(&kernel_env);
     print!("[IN]:");
     while let Some(scancode) = scancodes.next().await {
         if let Ok(Some(key_event)) = keyboard.add_byte(scancode) {
@@ -117,7 +117,6 @@ pub fn head() {
      ///////   ////////                                      made by zhouzihao "
     );
     println!("Weclome to my page:https://github.com/zzhgithub/juner_os");
-    println!("since:2019");
     println!("you can use MAL a small lisp!");
     println!();
     // let mut i = 0;

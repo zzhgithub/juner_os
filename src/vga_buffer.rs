@@ -92,15 +92,18 @@ impl Writer {
         self.column_position = self.column_position - 1;
     }
 
+    // 删除末尾行
     fn del_line(&mut self) {
-        for row in 0..(BUFFER_HEIGHT - 1) {
+        for row in 0..BUFFER_HEIGHT - 1 {
             for col in 0..BUFFER_WIDTH {
-                let character = self.buffer.chars[row][col].read();
-                self.buffer.chars[row - 1][col].write(character);
+                let brow = BUFFER_HEIGHT - 1 - row;
+                if row < BUFFER_WIDTH {
+                    let character = self.buffer.chars[brow - 1][col].read();
+                    self.buffer.chars[brow][col].write(character);
+                }
             }
         }
-        // 第一行怎么处理？
-        self.column_position = BUFFER_WIDTH - 1;
+        self.column_position = BUFFER_WIDTH;
     }
 
     fn new_line(&mut self) {
