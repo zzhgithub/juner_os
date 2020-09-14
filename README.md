@@ -1,6 +1,44 @@
 # juner_os
 
 ![juner_os](juneros.png)
+
+
+# introduction
+A lisp shell that can run interactive is now implemented. The subsequent goal is to organize the code of the operating system in a mixed way of lisp and rust. At the same time, the core library is ready to be loaded and maintained using lisp. The project is in progress.
+
+# 简介
+这个项目结合了blog_os和mal两个项目的内容。现在实现了一个可以运行交互的lisp shell.后续目标是使用lisp和rust混合的方式组织操作系统的代码。并而核心库准备使用lisp进行加载和维护。项目进行中。
+
+
+# 功能计划(没有实现的)
+- [ ] VGA text mode 下显示打印
+  - [x] 光标跟随
+  - [x] 删除
+  - [ ] 代码提示Tab
+  - [ ] 光标移动编辑
+  - [ ] 滚动条
+- [ ] Lisp 完整功能
+  - [x] 支持宏
+  - [ ] 支持代码提示
+  - [ ] sacnf方法
+  - [ ] 文件读写
+  - [ ] 模块加载
+  - [ ] JIT
+  - [ ] 支持call/cc
+- [ ] 设备
+  - [ ] 识别硬盘
+  - [ ] 声音驱动
+  - [ ] 网卡支持
+- [ ] 抽象的功能
+  - [ ] 并行多任务
+  - [ ] 支持GUI
+  - [ ] 网络加载lisp模块
+  - [ ] 多核心利用
+  - [ ] 自举（支持rust环境）
+- [ ] 梦中的app
+  - [ ] MAL 这个方言的编辑器
+  - [ ] NoteBook
+
 ## 开发日志
 
 - [开发日志详细文档](https://www.yuque.com/xiaohao-i0lwb/fn1hxc)
