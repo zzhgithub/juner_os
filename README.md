@@ -3,6 +3,7 @@
 ![juner_os](juneros.png)
 
 
+联系我: zzhggmm@gmail.com
 # introduction
 A lisp shell that can run interactive is now implemented. The subsequent goal is to organize the code of the operating system in a mixed way of lisp and rust. At the same time, the core library is ready to be loaded and maintained using lisp. The project is in progress.
 
