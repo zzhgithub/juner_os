@@ -5,6 +5,7 @@
 #![feature(alloc)]
 #[macro_use]
 extern crate log;
+#[macro_use]
 extern crate alloc;
 
 extern crate uefi;
@@ -72,7 +73,7 @@ fn uefi_start(_image_handler: uefi::Handle, system_table: SystemTable<Boot>) -> 
         info!("UEFI {}.{}", major, minor);
     }
     memory_map(&system_table.boot_services());
-    
+
     loop {}
     Status::SUCCESS
 }
