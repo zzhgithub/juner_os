@@ -1,26 +1,25 @@
-# Lisp 语法
+# Lisp Syntax
 
-## 数据类型
-- 布尔型 true/false
-- 空类型 nil
+## Data type
+- Boolean true/false
+- Empty type nil
 
-
-## 给符号绑定“值”（S表达式）
+## Bind "values" to symbols (S-expressions)
 
 ### def!
 ```lisp
 （def! x1 S)
 ```
 
-- x1 是要绑定的符号 
-- S 要绑定的S表达式
+- x1 is the symbol to bind to.
+- S The S expression to bind to.
 
-example: 
+example:
 ```lisp
 
 (def! mynum 111)
 => 111
-;; 此时绑定值到了mynum 这个符号上
+;; This binds the value to the mynum symbol.
 ```
 
 ### let*
@@ -30,8 +29,7 @@ example:
        q (+ 2 p)) (+ p q))
 => 12
 ```
-使用let* 临时赋值
-
+Temporary assignment using let*
 
 ### lambda
 
@@ -39,9 +37,9 @@ example:
 ((lambda [x] (+ 1 x)) 1)
 => 2
 ```
-定义一个闭包过程。可以和def!组合起来定义一个函数。
+Define a closure procedure. It can be combined with def! to define a function.
 
-注意参数的语法 如果在参数前使用&符号可以表示多个参数都到一个list中。而且只能使用在最后一个参数的前面。
+Note the syntax of arguments If you use the & symbol before an argument, you can indicate that multiple arguments are in a list. It can only be used before the last argument.
 
 ### do
 
@@ -49,7 +47,7 @@ example:
 (do (+ 1 2) (+ 3 4) 5)
 => 5
 ```
-计算列表中的每个元素的值，然后返回最后一个元素的值。
+Calculates the value of each element in the list and then returns the value of the last element.
 
 ### list
 
@@ -58,7 +56,7 @@ example:
 => (1 2 3)
 ```
 
-生成一个Lisp的列表。
+Generate a list of Lisp.
 
 ### read-string
 
@@ -70,7 +68,8 @@ example:
 => (Fn*<xxx00> 1 1)
 
 ```
-读一个字符串生成一个Lisp对象，注意只生成对象，但是不进行求值。
+
+Read a string to generate a Lisp object, note that only the object is generated, but no evaluation is done.
 
 ### eval
 
@@ -82,12 +81,13 @@ example:
 => 4
 
 ```
-对Lisp对象进行求值。使用这个方法后，Lisp中没有了数据和代码的界限。捅破了数据和代码的那层窗户纸。
+
+Evaluate the Lisp object. With this method, there is no boundary between data and code in Lisp. The layer of data and code is poked through.
 
 
 ### prn
 
-打印一个符号如果不存在就报错
+Print a symbol and report an error if it does not exist
 
 ```lisp
 (prn abc)
@@ -95,8 +95,8 @@ example:
 ```
 
 ### quote
-表示后面的值是这个符号本身
-可以和prn进行配合使用
+indicates that the value that follows is the symbol itself.
+Can be used in conjunction with prn
 
 ```lisp
 (prn (quote abc))
@@ -104,20 +104,20 @@ example:
 => abc
 => Nil
 ```
-解释：打印abc是prn函数的副作用。prn函数真正的返回是Nil。
+Explanation: printing abc is a side-effect of the prn function. the real return of the prn function is Nil.
 
 ### '
 
-' 是 quote的语法糖。
-'abc 和 (quote abc)是完全等效的。实际上它在解释器内部也会翻译成quote的形式。
+' is the grammatical sugar of quote.
+'abc and (quote abc) are completely equivalent. It actually translates into quote form inside the interpreter as well.
+
+### quasiquote, unquote and splice-unquote
+quasiquote creates a notation that can be evaluated temporarily. If used alone there is no difference between unquote and quote.  
+To be used in conjunction with unquote and splice-unquote.There is a minor difference. unquote means that the next symbol is temporarily evaluated.  
+A splice-unquote takes a temporary value and then expands the list.
 
 
-### quasiquote 、 unquote 和 splice-unquote
-quasiquote建立一个可以临时求值的的符号。如果单独使用和quote没有什么区别。  
-要和unquote与splice-unquote联合使用。其中有轻微的差别。unquote表示对下一个符号进行临时取值。  
-splice-unquote临时取值后把列表展开。
-
-具体例子如下：
+Specific examples are as follows.
 ```lisp
 (def! lst '(2 3))
 => (2 3)
@@ -130,7 +130,7 @@ splice-unquote临时取值后把列表展开。
 ```
 
 ### ` 、 ～ 和 ～@
-quasiquote 、 unquote 和 splice-unquote 的语法糖。
+grammatical sugar of quasiquote 、 unquote and splice-unquote ;
 
 ```lisp
 (def! lst '(2 3))
@@ -144,7 +144,7 @@ quasiquote 、 unquote 和 splice-unquote 的语法糖。
 ```
 
 ### cons
-这个函数将它的第一个参数连接到它的第二个参数 (一个列表) 前面，返回一个新列表。
+This function connects its first argument to its second argument (a list) and returns a new list.
 
 ```lisp
 (cons [1] [2 3])
@@ -155,7 +155,7 @@ quasiquote 、 unquote 和 splice-unquote 的语法糖。
 ```
 
 ### concat
-这个函数接受零个或多个列表作为参数，并且返回由这些列表的所有参数组成的一个新列表。
+This function accepts zero or more lists as arguments and returns a new list consisting of all the arguments of those lists.
 
 ```lisp
 (concat [1 2] (list 3 4) [5 6])
@@ -166,14 +166,15 @@ quasiquote 、 unquote 和 splice-unquote 的语法糖。
 ```
 
 ### defmacro! 和 macroexpand
-宏定义和宏展开
+Macro definition and macro expansion
 
-宏定义 定义一个符号。它的返回值会被继续当做ast进行求值。所有这里可以广泛的运用到之前的' ` ～ ～@ d等语法糖。  
-宏展开。展开一个宏，只计算出它要求值的ast而不进行求值。
+Macro Definition Defines a symbol. Its return value will continue to be evaluated as AST. All of which can be used extensively with the previous syntactic sugars such as ' ` ～ ～ @ d etc.  
+Macro expansion. Expands a macro to calculate only the last of its required values without evaluating it.
+
 ```lisp
 (defmacro! unless (lambda (pred a b) `(if ~pred ~b ~a)))
 
-=> ...（此处省略）
+=> ...(Omitted here)
 
 (unless false 7 8)
 => 7
@@ -183,7 +184,7 @@ quasiquote 、 unquote 和 splice-unquote 的语法糖。
 ```
 
 ### nth
-这个函数接受一个列表（或向量）以及一个数字（序号）作为参数，返回列表中给定序号位置的元素。如果序号超出了返回，函数抛出一个异常。
+This function takes a list (or vector) and a number (ordinal number) as arguments and returns the element of the list at the given ordinal position. If the ordinal number is exceeded, the function throws an exception.
 
 ```lisp
 (nth [1 2 3] 0)
@@ -194,7 +195,7 @@ quasiquote 、 unquote 和 splice-unquote 的语法糖。
 ```
 
 ### first
-这个函数接受一个列表（或向量）作为参数，返回它的第一个元素，如果列表（或向量）是空的，或者参数本身是 nil，则返回 nil。
+This function accepts a list (or vector) as an argument and returns its first element, or nil if the list (or vector) is empty, or if the argument itself is nil.
 
 ```lisp
 (first '((1 2) 2 3))
@@ -203,7 +204,7 @@ quasiquote 、 unquote 和 splice-unquote 的语法糖。
 ```
 
 ### count
-接受一个列表或者向量返回列表或者向量的长度
+Accepts a list or vector and returns the length of the list or vector.
 
 ```lisp
 (count '(1 2 (2 3)))
@@ -214,7 +215,7 @@ quasiquote 、 unquote 和 splice-unquote 的语法糖。
 ```
 
 ### empty?
-接受一个列表或者向量判断这个对象是否事空。如果我空的情况下返回true否则返回false
+Accept a list or vector to determine if the object is empty. Returns true if I'm empty and false otherwise.
 
 ```lisp
 (empty? '())
@@ -226,8 +227,8 @@ quasiquote 、 unquote 和 splice-unquote 的语法糖。
 
 ### try* catch* 和 throw
 
-try-catch代码块和其他 语言的try-catch并没有什么特别的不同。try后面跟着一个语句。如果有多条语句可以使用do语句进行配合，而catch
-语句中，会有一个异常，并且可以控制代码段的返回。如果使用了throw可以主动的抛出一个异常。
+The try-catch block is no different than try-catch in other languages. try is followed by a statement. If there are multiple statements that can be matched with a do statement, the catch
+statement, an exception is thrown, and the return of the code segment can be controlled. If throw is used an exception can be actively thrown.
 
 ```lisp
 (throw "err1")
@@ -242,7 +243,8 @@ try-catch代码块和其他 语言的try-catch并没有什么特别的不同。t
 ```
 
 ### apply
-它有两个参数，第一个参数是一个函数。而第二个参数是这个函数需要的入参的列表。这个函数会返回这个求值的结果。
+It has two arguments, the first argument is a function. The second argument is a list of the required parameters for the function. This function will return the result of this evaluation.
+
 
 ```lisp
 (apply + (list 1 3))
@@ -257,8 +259,8 @@ try-catch代码块和其他 语言的try-catch并没有什么特别的不同。t
 ```
 
 ### map
-它有两个参数，第一个参数是一个函数，第二个参数是一个向量或者列表。之后它会对第二个参数中的每个值进行求值，然后结果返回一个新的列表。  
-注意map每个函数只接受一个参数。但是可以配合apply达到传多个值的效果。
+It has two arguments, the first argument is a function and the second is a vector or a list. It then evaluates each value in the second argument, and the result returns a new list.  
+Note that map accepts only one argument per function. However, it is possible to pass multiple values with apply.
 
 ```lisp
 
@@ -267,21 +269,20 @@ try-catch代码块和其他 语言的try-catch并没有什么特别的不同。t
 
 ```
 
-
-### 几个简单的类型判断函数
+### A few simple type determination functions
 - nil?
 - true?
 - false?
-- symbol? (判断是不是符号)
+- symbol? (Determine if it's a symbol.)
 
 
-### Atom 进行原子操作
+### Atomic manipulation by Atom
 
-- atom: 输入一个 mal 值，并返回一个新的指向这个值的原子。
-- atom?: 判断输入的参数是不是原子，如果是，返回 true。
-- deref: 输入一个原子作为参数，返回这个原子所引用的值。
-- reset!: 输入一个原子以及一个 mal 值，修改原子，让它指向这个 mal 值，并返回这个 mal 值。
-- swap!: 输入一个原子，一个函数，以及零个或多个函数参数。将原子的值作为第一参数，并将余下的函数参数作为可选的参数传输函数中，将原子的值置为函数的求值结果。返回新的原子的值。(边注: Mal是单线程的，但在像Clojure之类的并发语言中，swap!将是一个原子操作，(swap! myatom (fn* [x] (+ 1 x)))总是会把myatom计数增加1，并且在原子被多个线程操作时不会导致结果出错)
+- atom: Enter a value of mal, and return a new atom pointing to it.
+- atom?: Determines whether the argument is an atom or not, and returns true if it is.
+- deref: Enter an atom as an argument, and return the value referenced by the atom.
+- reset!: Enter an atom and a mal value, modify the atom to point to the mal value, and return the mal value.
+- swap!: Enter an atom, a function, and zero or more function arguments. Take the value of the atom as the first argument, and transfer the remaining function arguments to the function as optional arguments, setting the value of the atom as the result of the function's evaluation. Return the new value of the atom. (Side note: Mal is single-threaded, but in a concurrent language like Clojure, swap! will be an atomic operation, and (swap! myatom (fn* [x] (+ 1 x)) will always increase the myatom count by 1, and will not cause an error in the result when the atom is manipulated by multiple threads)
 
 ```lisp
 (def! *test-atom* (atom 0))
@@ -297,35 +298,34 @@ try-catch代码块和其他 语言的try-catch并没有什么特别的不同。t
 => 11
 ```
 
-@ 是deref的语法糖
+@ is grammatical sugar of deref
 
+### Hash-Map Operations and keywords
 
-### Hash-Map 的操作和 关键字
-在此方言中hashmap是一种基本的类型。使用{}大括号表示字面量。其中key可以使用两种方式。字符串和关键字。关键字是使用：开头的字符串。  
+In this dialect hashmap is a basic type. Use {} curly brackets to represent literal quantities. Where key can be used in two ways. Strings and keywords. The keyword is a string using: beginning.  
 {"a" 1 "b" 2}
 {:a 1 :b 2}
-上面两种形式都可以表示一个map.  
-- hash-map: 接受偶数数量的参数，返回一个新的 mal 哈希表，其中键为奇数位置的参数，它们的值分别为与之对应的偶数位置的参数，它基本上是 {}reader 字面语法的函数形式。
-- map?: 接受一个参数，如果参数是哈希表的话，返回 true(mal 中的 true 值)，否则返回 false(mal 中的 false 值)
-- assoc: 接受一个哈希表作为第一个参数，余下的参数为需要关联(合并)到哈希表里的奇/偶-键/值对。注意，原始的哈希表不会被修改(记住，mal 的值是不可变的)，旧哈希表中的键/值与参数中的键/值对合并而成的新的哈希表作为结果返回。
-- dissoc:接受一个哈希表作为第一个参数，余下的参数为需要从哈希表中删除的键。与前面一样，注意原始的哈希表是不变的，只是把删除了参数中指定的键的新哈希表返回出来。参数列表中在原哈希表不存在的键会被忽略。
-- get: 接受一个哈希表和一个键，返回哈希表中与这个键对应的值，如果哈希表中不存在这个键，则返回 nil。
-- contains?: 接受一个哈希表和一个键，如果哈希表中包含这个键，则返回 true(mal 中的 true 值)，否则返回 false(mal 中的 false 值)。
-- keys: 接受一个哈希表，并返回一个列表(mal 中的 列表值)，其中包含了哈希表中的所有的键。
-- vals: 接受一个哈希表，并返回一个列表(mal 中的 列表值)，其中包含了哈希表中的所有的值。 
+Both of the above forms can be used to represent a map.  
+- hash-map: accepts an even number of arguments and returns a new mal hash table, where the keys are the arguments at odd positions and their values are the arguments at even positions, which is essentially a function of the {}reader literal syntax.
+- map?: accepts an argument, returns true if it is a hash, or false if it is a mal.
+- assoc: accepts a hash table as the first argument, and the remaining arguments are the odd/even-key/value pairs that need to be associated (merged) into the hash table. Note that the original hash table will not be modified (remember, the value of mal is immutable) and the new hash table is returned as a result of merging the keys/values in the old hash table with the key/value pairs in the arguments.
+- dissoc: accepts a hash table as the first argument, with the remaining arguments being the keys that need to be removed from the hash table. As before, note that the original hash table is unchanged, except that the new hash table is returned with the key specified in the argument removed. Keys in the parameter list that did not exist in the original hash table are ignored.
+- get: accepts a hash table and a key, returns the value corresponding to the key in the hash table, or nil if the key does not exist in the hash table.
+- contains?: accepts a hash table and a key, returns true if the hash table contains the key, otherwise returns false if the key is false.
+- keys: accepts a hash table and returns a list (the list value in mal) containing all the keys in the hash table.
+- vals: Accepts a hash table and returns a list (of values in mal) containing all the values in the hash table. 
 
-注意上面的方法都没有产生副作用，也就是没有改变原理的值。如果你要这么做的话建议你使用atom或者重新def!
+Note that none of the above methods have side effects, i.e., they do not change the values of the principle. If you're going to do this it is recommended that you use atom or redef!
 
+### gensym generates a new symbol for the system
 
-
-### gensym 生成一个系统中全新的符号
 ```lisp
 (gensym)
-=> 每次运行不一样！
+=> It's different every run!
 ```
 
-### cond 多条件
-有偶数个参数一个是条件一个是返回的值
+### cond  multiconditional
+There are an even number of arguments one for the condition and one for the returned value.
 ```lisp
 (def! ten-test (lambda [data]
                 (cond
@@ -336,3 +336,5 @@ try-catch代码块和其他 语言的try-catch并没有什么特别的不同。t
 (ten-test 15)
 => 1
 ```
+
+TODO others baisc function
