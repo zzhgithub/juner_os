@@ -7,11 +7,6 @@ pub fn test(st: &SystemTable<Boot>) {
     let bt = st.boot_services();
     gop::test(&bt);
     pointer::test(&bt);
-    st.stdin().wait_for_key_event(|>{
-        if let Ok(Key) = st.stdin().read_key(){
-            //
-        }
-    })
 }
 
 

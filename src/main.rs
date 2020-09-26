@@ -3,6 +3,7 @@
 #![feature(asm)]
 #![feature(abi_efiapi)]
 #![feature(alloc)]
+#![feature(wake_trait)]
 #[macro_use]
 extern crate log;
 #[macro_use]
@@ -13,6 +14,9 @@ extern crate uefi_services;
 use crate::alloc::vec::Vec;
 use uefi::{prelude::*, table::boot::MemoryType};
 use uefi::proto::console::serial::{ControlBits, Serial};
+
+pub mod test;
+pub mod task;
 
 const EFI_PAGE_SIZE: u64 = 0x1000;
 
@@ -116,13 +120,12 @@ fn uefi_start(_image_handler: uefi::Handle, system_table: SystemTable<Boot>) -> 
         info!("UEFI {}.{}", major, minor);
     }
     memory_map(&system_table.boot_services());
-    test::test(&system_table);
+    // test::test(&system_table);
 
-    // todo
+    
     loop {}
     Status::SUCCESS
 }
 
 
 
-pub mod test;

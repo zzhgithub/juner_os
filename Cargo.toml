@@ -1,5 +1,5 @@
 [package]
-name = "juner_os"
+name = "juner-os"
 version = "0.1.0"
 authors = ["zhouzihao <1042181618@qq.com>"]
 edition = "2018"
@@ -10,3 +10,10 @@ edition = "2018"
 uefi = "0.5.0"
 uefi-services = "0.2.5"
 log = { version = "0.4.11", default-features = false }
+x86_64 = "0.12.1"
+
+
+[dependencies.crossbeam-queue]
+version = "0.2.1"
+default-features = false
+features = ["alloc"]

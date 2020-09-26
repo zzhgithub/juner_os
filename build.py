@@ -28,14 +28,14 @@ def run_build(*flags):
 def build_command():
   "Builds UEFI application"
 
-  run_build("--package", "uefi-app")
+  run_build("--package", "juner-os")
 
   # Create build folder
   boot_dir = BUILD_DIR / "EFI" / "BOOT"
   boot_dir.mkdir(parents=True, exist_ok=True)
 
   # Copy the build EFI application to the build directory
-  built_file = CARGO_BUILD_DIR / "uefi-app.efi"
+  built_file = CARGO_BUILD_DIR / "juner-os.efi"
   output_file = boot_dir / "BootX64.efi"
   shutil.copy2(built_file, output_file)
 
