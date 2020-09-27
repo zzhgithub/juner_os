@@ -12,11 +12,12 @@ extern crate alloc;
 extern crate uefi;
 extern crate uefi_services;
 use crate::alloc::vec::Vec;
-use uefi::{prelude::*, table::boot::MemoryType};
+use task::{executor::Executor, Task};
 use uefi::proto::console::serial::{ControlBits, Serial};
+use uefi::{prelude::*, table::boot::MemoryType};
 
-pub mod test;
 pub mod task;
+pub mod test;
 
 const EFI_PAGE_SIZE: u64 = 0x1000;
 
@@ -101,7 +102,6 @@ fn check_screenshot(bt: &BootServices, name: &str) {
     }
 }
 
-
 #[entry]
 fn uefi_start(_image_handler: uefi::Handle, system_table: SystemTable<Boot>) -> Status {
     uefi_services::init(&system_table).expect_success("Failed to initialize utils");
@@ -121,11 +121,17 @@ fn uefi_start(_image_handler: uefi::Handle, system_table: SystemTable<Boot>) -> 
     }
     memory_map(&system_table.boot_services());
     // test::test(&system_table);
+    let mut executor = Executor::new();
+    executor.spawn(Task::new(test_task()));
+    executor.spawn(Task::new(test::input::test_input(unsafe {
+        system_table.unsafe_clone()
+    })));
+    executor.run();
 
-    
     loop {}
     Status::SUCCESS
 }
 
-
-
+pub async fn test_task() {
+    info!("test task!")
+}

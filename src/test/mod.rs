@@ -1,5 +1,4 @@
 use uefi::prelude::*;
-use uefi::proto::console::text::Input;
 
 pub fn test(st: &SystemTable<Boot>) {
     info!("Testing console protocols");
@@ -13,3 +12,4 @@ pub fn test(st: &SystemTable<Boot>) {
 pub mod stdout;
 pub mod gop;
 pub mod pointer;
+pub mod input;
