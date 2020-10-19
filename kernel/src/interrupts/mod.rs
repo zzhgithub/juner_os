@@ -112,8 +112,8 @@ extern "x86-interrupt" fn keyboard_interrupt_handler(_stack_frame: &mut Interrup
 
 pub fn init() {
     println!("interrupts config start!");
-    init_idt();
     gdt::init();
+    init_idt();
     unsafe { PICS.lock().initialize() };
     println!("interrupts config end!");
     x86_64::instructions::interrupts::enable();
