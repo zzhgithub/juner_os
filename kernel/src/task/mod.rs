@@ -7,6 +7,7 @@ use core::{
 };
 
 pub mod executor;
+pub mod keyboard;
 
 pub struct Task {
     id: TaskId,
@@ -26,7 +27,6 @@ impl Task {
     }
 }
 
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 struct TaskId(u64);
 
@@ -36,4 +36,3 @@ impl TaskId {
         TaskId(NEXT_ID.fetch_add(1, Ordering::Relaxed))
     }
 }
-

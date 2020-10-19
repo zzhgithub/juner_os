@@ -41,22 +41,29 @@ impl Executor {
             waker_cache,
         } = self;
 
-        while let Ok(task_id) = task_queue.pop() {
-            let task = match tasks.get_mut(&task_id) {
-                Some(task) => task,
-                None => continue, // task no longer exists
-            };
-            let waker = waker_cache
-                .entry(task_id)
-                .or_insert_with(|| TaskWaker::new(task_id, task_queue.clone()));
-            let mut context = Context::from_waker(waker);
-            match task.poll(&mut context) {
-                Poll::Ready(()) => {
-                    // task done -> remove it and its cached waker
-                    tasks.remove(&task_id);
-                    waker_cache.remove(&task_id);
+        loop {
+            let task_op = task_queue.pop();
+            match task_op {
+                Some(_) => {
+                    let task_id = task_op.unwrap();
+                    let task = match tasks.get_mut(&task_id) {
+                        Some(task) => task,
+                        None => continue, // task no longer exists
+                    };
+                    let waker = waker_cache
+                        .entry(task_id)
+                        .or_insert_with(|| TaskWaker::new(task_id, task_queue.clone()));
+                    let mut context = Context::from_waker(waker);
+                    match task.poll(&mut context) {
+                        Poll::Ready(()) => {
+                            // task done -> remove it and its cached waker
+                            tasks.remove(&task_id);
+                            waker_cache.remove(&task_id);
+                        }
+                        Poll::Pending => {}
+                    }
                 }
-                Poll::Pending => {}
+                None => {}
             }
         }
     }
