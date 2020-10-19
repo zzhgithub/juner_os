@@ -33,6 +33,10 @@ pub fn main(boot_info: &'static BootInfo) -> ! {
     warn!("This is warn");
     debug!("This is debug");
     println!("This is println");
+    
+    // test inerrupts
+    x86_64::instructions::interrupts::int3();
+    
     let mut executor = Executor::new();
     executor.spawn(Task::new(task::keyboard::print_keypresses()));
     executor.run();
