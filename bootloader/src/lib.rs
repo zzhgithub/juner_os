@@ -23,6 +23,7 @@ pub struct BootInfo {
     /// Physical address of ACPI2 RSDP
     /// 电源管理地址
     pub acpi2_rsdp_addr: u64,
+    pub smbios_addr: u64,
 }
 
 /// Kernel entry's virtual address.
