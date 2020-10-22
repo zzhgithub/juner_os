@@ -20,8 +20,15 @@ pub fn putfmt(fmt: Arguments) {
     unsafe {
         CONSOLE.force_unlock();
     }
-    
+
     if let Some(console) = CONSOLE.lock().as_mut() {
         console.write_fmt(fmt).unwrap();
+    }
+}
+
+pub fn clear_screen() {
+    unsafe { CONSOLE.force_unlock() }
+    if let Some(console) = CONSOLE.lock().as_mut() {
+        console.clear();
     }
 }
