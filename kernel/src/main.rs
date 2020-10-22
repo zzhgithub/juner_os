@@ -32,15 +32,11 @@ pub fn main(boot_info: &'static BootInfo) -> ! {
     board::acpi_table::get_acpi_addr(boot_info); // 从 boot_info中读取acpi_table address
     interrupts::init(); // 初始化Trap frame和中断
     memory::init_frame(boot_info); // 初始化内存Frame
-    //
     test!("This is test");
     error!("This is error");
     warn!("This is warn");
     debug!("This is debug");
     println!("This is println");
-    // let mut executor = Executor::new();
-    // executor.spawn(Task::new(task::keyboard::print_keypresses()));
-    // executor.run();
     shell::init_shell();
     hlt_loop();
 }

@@ -16,7 +16,7 @@ pic8259_simple = "0.2.0"
 pc-keyboard = "0.5.1"
 acpi = "1.1.0"
 raw-cpuid = "8.0.0"
-
+hashbrown = "0.9.1"
 
 # Others Dependencies
 bootloader = { path = "../bootloader",default-features = false}

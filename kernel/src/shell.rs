@@ -1,49 +1,36 @@
+use crate::mal::core::load_core;
+use crate::mal::env::env_new;
+use crate::mal::env::Env;
+use crate::mal::rep;
+use crate::mal::types::format_error;
 use alloc::string::String;
 use alloc::vec::Vec;
 use core::fmt::Arguments;
 
-
-// TODO
 pub fn init_shell() {
+    //清屏
+    crate::console::io::clear_screen();
+    head();
     // 本地程序
-    shell(format_args!("moyan"));
-    test!("Shell END!");
+    shell(format_args!("MAL"));
 }
-
 
 pub fn shell(args: Arguments) {
     let mut history = Vec::new();
+    let kernel_env: Env = env_new(None);
+    load_core(&kernel_env);
+    print!(93;"\n");
     loop {
-        print!(93; "{} -:)# ",args);
+        print!(93; "{} [IN]:",args);
         let cmd = get_line(&mut history);
         if cmd == String::from("") {
             continue;
         }
-        let name = cmd.trim().split(' ').next().unwrap();
-
-        match name {
-            "hello" => print!(93; "Hello World! I'm Kernel Program\n"),
-            "Rust" => print!(93; "Rust is freaking beautiful!\n"),
-            "clear" => crate::console::io::clear_screen(),
-            "ailice" => print!(93; r"
-            ░█▀▀█ ░▀░ █░░ ░▀░ █▀▀ █▀▀ ▒█▀▀▀█ ▒█▀▀▀█
-            ▒█▄▄█ ▀█▀ █░░ ▀█▀ █░░ █▀▀ ▒█░░▒█ ░▀▀▀▄▄
-            ▒█░▒█ ▀▀▀ ▀▀▀ ▀▀▀ ▀▀▀ ▀▀▀ ▒█▄▄▄█ ▒█▄▄▄█
-"),
-            "moyan" => print!(93; "Hi! moyan\n"),
-            "exit" => {
-                print!(93; "Boy, I will be leave, Goodbye!\n");
-                break;
-            }
-            "thread_test" => {
-                print!(93; "Start test thread ...\n");
-            }
-            "whoami" => {
-                print!(93; "I'm BMO! You are Moyan!\n");
-            }
-            _ => {
-                print!(31; "Program not exist!\n");
-            }
+        let name = cmd.trim();
+        print!(93;"{}\n",name);
+        match rep(name, &kernel_env) {
+            Ok(out) => print!(93;">>:{}\n", out),
+            Err(e) => print!(93;">>:{}\n", format_error(e)),
         }
     }
 }
@@ -190,4 +177,28 @@ fn get_char() -> u8 {
 
 pub fn put_char(ch: u8) {
     print!("{}", ch as char);
+}
+
+fn head() {
+    print!(96;"
+         **   **     **   ****     **   ********   *******  
+        /**  /**    /**  /**/**   /**  /**/////   /**////** 
+        /**  /**    /**  /**//**  /**  /**        /**   /** 
+        /**  /**    /**  /** //** /**  /*******   /*******  
+        /**  /**    /**  /**  //**/**  /**////    /**///**  
+    **  /**  /**    /**  /**   //****  /**        /**  //** 
+   //*****   //*******   /**    //***  /********  /**   //**
+    /////     ///////    //      ///   ////////   //     // 
+      *******    ********
+     **/////**  **////// 
+    **     //**/**       
+   /**      /**/*********
+   /**      /**////////**
+   //**     **        /**                                    version: V0.0.1
+    //*******   ********                                     since @ 2019
+     ///////   ////////                                      made by zhouzihao \n"
+    );
+    print!(96;"Weclome to my page:https://github.com/zzhgithub/juner_os\n");
+    print!(96;"you can use MAL a small lisp!\n");
+    print!(96;"\n");
 }
