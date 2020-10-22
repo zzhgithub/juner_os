@@ -1,6 +1,6 @@
 # juner_os
 
-![juner_os](juneros.png)
+![juner_os](uefi.png)
 
 [English](.README.md)
 
@@ -14,12 +14,13 @@
 - LISP REPL
 
 # 依赖
-- rustc 1.48.0-nightly (0e2c1281e 2020-09-07)
+- rustc 1.48.0-nightly 
 - qemu
+
 
 # 运行
 ```
-cargo xrun
+make all
 ```
 
 # Lisp 的语法:
@@ -46,7 +47,7 @@ cargo xrun
   - [ ] 声音驱动
   - [ ] 网卡支持
 - [ ] 抽象的功能
-  - [ ] UEFI 支持
+  - [x] UEFI 支持
   - [ ] 并行多任务
   - [ ] 支持GUI
   - [ ] 网络加载lisp模块

@@ -1,6 +1,6 @@
 # juner_os
 
-![juner_os](juneros.png)
+![juner_os](uefi.png)
 
 [中文](./README_CN_ZH.md)
 
@@ -13,12 +13,13 @@ A lisp shell that can run interactive is now implemented. The subsequent goal is
 - LISP REPL
 
 # dependencies
-- rustc 1.48.0-nightly (0e2c1281e 2020-09-07) 
+- rustc 1.48.0-nightly
 - qemu
+
 
 # run
 ```
-cargo xrun
+make all
 ```
 
 # Lisp mal grammar
@@ -47,7 +48,7 @@ cargo xrun
   - [ ] Sound Drive
   - [ ] Network Card Support
 - [ ] abstract function
-  - [ ] UEFI support
+  - [x] UEFI support
   - [ ] Parallel Multitasking
   - [ ] GUI support
   - [ ] network load lisp module
