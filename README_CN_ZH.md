@@ -65,3 +65,10 @@ make all
 # 期待你加入并完善这个项目
 
 联系我: zzhggmm@gmail.com
+
+# 感谢
+
+- blog_os
+- mal
+- rcore
+- @senseiod 和我拷贝了很多的项目 https://github.com/senseiod/AiliceOS

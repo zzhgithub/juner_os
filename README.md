@@ -66,3 +66,11 @@ Later the uefi branch will be merged into the master branch and used as a mainst
 # Looking forward to you joining and improving the project
 
 Contact me: zzhggmm@gmail.com
+
+
+# Thanks
+
+- blog_os
+- mal
+- rcore
+- @senseiod and wich project I copy a lot: https://github.com/senseiod/AiliceOS
