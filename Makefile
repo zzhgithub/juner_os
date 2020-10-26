@@ -31,12 +31,13 @@ run:
 	@qemu-system-x86_64 \
     -bios ${OVMF} \
     -drive format=raw,file=fat:rw:build/pc/esp \
-	-drive format=qcow2,file=$(USER_QCOW2),media=disk,cache=writeback,id=sfsimg,if=none \
-	-device ahci,id=ahci0 \
-	-device ide-hd,drive=sfsimg,bus=ahci0.0
     -m 4096 \
     -smp 2 \
     -serial mon:stdio \
+	-device isa-debug-exit \
+	-drive format=qcow2,file=$(USER_QCOW2),media=disk,cache=writeback,id=sfsimg,if=none \
+	-device ahci,id=ahci0 \
+	-device ide-hd,drive=sfsimg,bus=ahci0.0
    # -nographic \
 
 # 清理编译出来的文件
