@@ -24,9 +24,11 @@ pub mod task;
 
 use bootloader::{entry_point, BootInfo};
 use task::{executor::Executor, Task};
+use log::*;
 entry_point!(main);
 
 pub fn main(boot_info: &'static BootInfo) -> ! {
+    init_log();
     memory::heap::init_heap(); // 初始化堆分配，以启用alloc库
     memory::init_frame(boot_info); // 初始化内存Frame
     drivers::init_driver(boot_info); // 初始化串口输出和显示输出
@@ -48,4 +50,24 @@ pub fn hlt_loop() -> ! {
     loop {
         x86_64::instructions::hlt();
     }
+}
+
+
+fn init_log() {
+    struct SimpleLogger;
+    impl Log for SimpleLogger {
+        fn enabled(&self, metadata: &Metadata) -> bool {
+            true
+        }
+
+        fn log(&self, record: &Record) {
+            println!("[{:>5}] {}", record.level(), record.args());
+        }
+
+        fn flush(&self) {}
+    }
+
+    static LOGGER: SimpleLogger = SimpleLogger;
+    set_logger(&LOGGER).unwrap();
+    set_max_level(LevelFilter::Trace);
 }
