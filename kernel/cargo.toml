@@ -32,6 +32,11 @@ rcore-fs-devfs = { git = "https://github.com/rcore-os/rcore-fs", rev = "517af47"
 rcore-fs-sfs = { git = "https://github.com/rcore-os/rcore-fs", rev = "517af47" }
 rcore-fs-mountfs = { git = "https://github.com/rcore-os/rcore-fs", rev = "517af47" }
 
+# rcore-fs = {path="../../rcore-fs/rcore-fs"}
+# rcore-fs-devfs = {path="../../rcore-fs/rcore-fs-devfs"}
+# rcore-fs-sfs = {path="../../rcore-fs/rcore-fs-sfs"}
+# rcore-fs-mountfs = {path="../../rcore-fs/rcore-fs-mountfs"}
+
 [dependencies.conquer-once]
 version = "0.2.0"
 default-features = false
