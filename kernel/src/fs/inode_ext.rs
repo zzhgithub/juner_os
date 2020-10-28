@@ -1,12 +1,16 @@
 use super::*;
+use alloc::str::from_utf8;
+use alloc::string::{String, ToString};
 use alloc::vec::Vec;
 
 pub trait INodeExt {
     /// 打印当前目录的文件
     fn ls(&self);
-
-    /// 读取文件内容
-    fn readall(&self) -> Result<Vec<u8>, usize>;
+    fn ls_as_vec(&self) -> Result<Vec<String>, usize>;
+    /// 读取文件内容到
+    fn read_as_vec(&self) -> Result<Vec<u8>, usize>;
+    /// 读文件到字符串
+    fn read_as_string(&self) -> Result<String, usize>;
 }
 
 impl INodeExt for dyn INode {
@@ -18,14 +22,31 @@ impl INodeExt for dyn INode {
             id += 1;
         }
     }
-
-    fn readall(&self) -> Result<Vec<u8>, usize> {
-        // 从文件头读取长度
+    fn read_as_vec(&self) -> Result<Vec<u8>, usize> {
         let size = self.metadata().unwrap().size;
-        // 构建 Vec 并读取
-        let mut buffer = Vec::with_capacity(size);
-        unsafe { buffer.set_len(size) };
-        self.read_at(0, buffer.as_mut_slice()).unwrap();
-        Ok(buffer)
+        let mut buf = Vec::with_capacity(size);
+        unsafe {
+            buf.set_len(size);
+        }
+        self.read_at(0, buf.as_mut_slice()).unwrap();
+        Ok(buf)
+    }
+
+    fn read_as_string(&self) -> Result<String, usize> {
+        let data = self.read_as_vec().unwrap();
+        match from_utf8(&data) {
+            Ok(v) => Ok(v.to_string()),
+            Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
+        }
+    }
+
+    fn ls_as_vec(&self) -> Result<Vec<String>, usize> {
+        let mut res = Vec::new();
+        let mut id = 0;
+        while let Ok(name) = self.get_entry(id) {
+            res.push(name);
+            id += 1;
+        }
+        Ok(res)
     }
 }
