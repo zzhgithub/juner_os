@@ -2,7 +2,7 @@
 
 ![juner_os](uefi.png)
 
-[中文](./README_CN_ZH.md)
+[中文](./Readme_zh_CN.md)
 
 # introduction
 This project combines elements from both [blog_os](https://os.phil-opp.com/) and [mal](https://github.com/kanaka/mal).  
