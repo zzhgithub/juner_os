@@ -63,7 +63,7 @@ make all
   - [ ] MAL, the editor of the dialect.
   - [ ] NoteBook
   - [ ] mal's vscode editor plugin
-  - [ ] 
+
 # Work and goals now
 
 ~~At present the realization of the function is still very preliminary, lisp inside there is no mechanism to achieve, the kernel has to realize the content. Now we are working on using UEFI to boot, so that the system can read and write files, and run them within lisp.Later the uefi branch will be merged into the master branch and used as a mainstream.~~
