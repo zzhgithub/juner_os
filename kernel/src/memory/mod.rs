@@ -2,11 +2,13 @@ use bitmap_allocator::BitAlloc;
 use bootloader::{BootInfo, MemoryType};
 use buddy_system_allocator::LockedHeap;
 use lazy_static::*;
+use log::*;
 use spin::Mutex;
 
 pub const PAGE_SIZE: usize = 1 << 12;
 pub const PHYSICAL_MEMORY_OFFSET: usize = 0xffff8000_00000000;
 pub const KERNEL_OFFSET: usize = 0xffffff00_00000000;
+pub const MEMORY_OFFSET: usize = 0;
 
 pub mod heap;
 
@@ -60,3 +62,52 @@ pub const fn virt_to_phys(vaddr: usize) -> usize {
 pub const fn kernel_offset(vaddr: usize) -> usize {
     vaddr - KERNEL_OFFSET
 }
+
+#[derive(Debug, Clone, Copy)]
+pub struct GlobalFrameAlloc;
+
+trait FrameAllocator {
+    fn alloc(&self) -> Option<usize>;
+    fn alloc_contiguous(&self, size: usize, align_log2: usize) -> Option<PhysAddr>;
+    fn dealloc(&self, target: usize);
+}
+
+impl FrameAllocator for GlobalFrameAlloc {
+    fn alloc(&self) -> Option<usize> {
+        let ret = FRAME_ALLOCATOR
+            .lock()
+            .alloc()
+            .map(|id| id * PAGE_SIZE + MEMORY_OFFSET);
+        trace!("Allocate frame: {:x?}", ret);
+        ret
+    }
+
+    fn alloc_contiguous(&self, size: usize, align_log2: usize) -> Option<PhysAddr> {
+        let ret = FRAME_ALLOCATOR
+            .lock()
+            .alloc_contiguous(size, align_log2)
+            .map(|id| id * PAGE_SIZE + MEMORY_OFFSET);
+        trace!("Allocate frame: {:x?}", ret);
+        ret
+    }
+
+    fn dealloc(&self, target: usize) {
+        trace!("Deallocate frame: {:x}", target);
+        FRAME_ALLOCATOR
+            .lock()
+            .dealloc((target - MEMORY_OFFSET) / PAGE_SIZE);
+    }
+}
+
+pub fn alloc_frame() -> Option<usize> {
+    GlobalFrameAlloc.alloc()
+}
+pub fn dealloc_frame(target: usize) {
+    GlobalFrameAlloc.dealloc(target);
+}
+pub fn alloc_frame_contiguous(size: usize, align_log2: usize) -> Option<usize> {
+    GlobalFrameAlloc.alloc_contiguous(size, align_log2)
+}
+
+type VirtAddr = usize;
+type PhysAddr = usize;

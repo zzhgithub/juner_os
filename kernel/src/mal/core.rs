@@ -12,9 +12,12 @@ use crate::mal::types::MalVal::{
 use crate::mal::types::{MalArgs, MalRet, MalVal, _assoc, _dissoc, atom, error, func, hash_map};
 use crate::vec;
 use crate::vector;
+
+use crate::fs::{inode_ext::INodeExt, ROOT_INODE};
 use alloc::rc::Rc;
 use alloc::string::{String, ToString};
 use alloc::vec::Vec;
+use log::*;
 
 // 处理两个值入参
 macro_rules! fn_t_int_int {
@@ -187,6 +190,38 @@ fn vals(a: MalArgs) -> MalRet {
     }
 }
 
+fn read_file(a: MalArgs) -> MalRet {
+    match &a[0] {
+        Str(path) => {
+            let rs = ROOT_INODE
+                .lookup(path.clone().as_str())
+                .unwrap()
+                .read_as_string()
+                .unwrap();
+            Ok(Str(rs))
+        }
+        _ => error("read_file requires path String"),
+    }
+}
+
+fn ls_dir(a: MalArgs) -> MalRet {
+    if a.len() > 0 {
+        match &a[0] {
+            Str(name) => {
+                // FIXME 处理这段函数
+                let list = ROOT_INODE.lookup(name).unwrap().ls_as_vec().unwrap();
+                let rs: Vec<MalVal> = list.iter().map(|v| Str(v.to_string()) as MalVal).collect();
+                Ok(list!(rs.to_vec()))
+            }
+            _ => error("ls requires a path string!"),
+        }
+    } else {
+        let tmp = ROOT_INODE.ls_as_vec().unwrap();
+        let tmp_rs: Vec<MalVal> = tmp.iter().map(|v| Str(v.to_string()) as MalVal).collect();
+        Ok(list!(tmp_rs.to_vec()))
+    }
+}
+
 pub fn ns() -> Vec<(&'static str, MalVal)> {
     vec![
         ("=", func(|a| Ok(Bool(a[0] == a[1])))),
@@ -264,6 +299,9 @@ pub fn ns() -> Vec<(&'static str, MalVal)> {
         ("contains?", func(contains_q)),
         ("keys", func(keys)),
         ("vals", func(vals)),
+        // 添加文件操作
+        ("read-file", func(read_file)),
+        ("ls", func(ls_dir)),
     ]
 }
 
@@ -275,6 +313,7 @@ fn mal() -> Vec<&'static str> {
         "(defmacro! or (v (& xs) (if (empty? xs) nil (if (= 1 (count xs)) (first xs) (let* (condvar (gensym)) `(let* (~condvar ~(first xs)) (if ~condvar ~condvar (or ~@(rest xs)))))))))",
         "(def! not (lambda (a) (if a false true)))",
         "(defmacro! cond (lambda (& xs) (if (> (count xs) 0) (list 'if (first xs) (if (> (count xs) 1) (nth xs 1) (throw \"odd number of forms to cond\")) (cons 'cond (rest (rest xs)))))))",
+        "(def! load-file (lambda (f) (eval (read-string (str \"(do \" (read-file f) \"nil)\" )))))",
     ]
 }
 

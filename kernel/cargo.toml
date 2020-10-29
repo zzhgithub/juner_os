@@ -17,6 +17,7 @@ pc-keyboard = "0.5.1"
 acpi = "1.1.0"
 raw-cpuid = "8.0.0"
 hashbrown = "0.9.1"
+log = "0.4"
 
 # Others Dependencies
 bootloader = { path = "../bootloader",default-features = false}
@@ -24,6 +25,17 @@ trapframe = { git = "https://github.com/rcore-os/trapframe-rs.git" }
 rcore-console = { git = "https://github.com/rcore-os/rcore-console.git", default-features = false}
 bitmap-allocator = { git = "https://github.com/rcore-os/bitmap-allocator" }
 apic = { git = "https://github.com/rcore-os/apic-rs.git" }
+pci = { git = "https://github.com/rcore-os/pci-rs", rev = "a4e7cea6" }
+isomorphic_drivers = { git = "https://github.com/rcore-os/isomorphic_drivers", rev = "fcf694d2", features = ["log"] }
+rcore-fs = { git = "https://github.com/rcore-os/rcore-fs", rev = "517af47" }
+rcore-fs-devfs = { git = "https://github.com/rcore-os/rcore-fs", rev = "517af47" }
+rcore-fs-sfs = { git = "https://github.com/rcore-os/rcore-fs", rev = "517af47" }
+rcore-fs-mountfs = { git = "https://github.com/rcore-os/rcore-fs", rev = "517af47" }
+
+# rcore-fs = {path="../../rcore-fs/rcore-fs"}
+# rcore-fs-devfs = {path="../../rcore-fs/rcore-fs-devfs"}
+# rcore-fs-sfs = {path="../../rcore-fs/rcore-fs-sfs"}
+# rcore-fs-mountfs = {path="../../rcore-fs/rcore-fs-mountfs"}
 
 [dependencies.conquer-once]
 version = "0.2.0"
