@@ -14,8 +14,9 @@ A lisp shell that can run interactive is now implemented. The subsequent goal is
 - rust implementation of the kernel (load BIOS)
 - LISP REPL
 - Support for load-file method to load mal files after kernel load.
-
-The code can now be written in the user folder. It can be loaded using the laod-file method in the replica after kernel boot.
+- The code can now be written in the user folder. It can be loaded using the laod-file method in the replica after kernel boot.
+- The kernel loads `entry.jaml` as an entry file.
+- The extension of the lisp dialect is `jmal` (Juner-os's Make A Lisp!).
 
 # dependencies
 
@@ -68,7 +69,7 @@ make all
 
 ~~At present the realization of the function is still very preliminary, lisp inside there is no mechanism to achieve, the kernel has to realize the content. Now we are working on using UEFI to boot, so that the system can read and write files, and run them within lisp.Later the uefi branch will be merged into the master branch and used as a mainstream.~~
 
-The load-file has been largely implemented. Now there are two directions to go. One is to write a mal language plugin for vscode (developed as a separate project, of course). The other is to write a simple editor to implement a freeze-like method. Let the methods currently running in the kernel be written to a disk file and then saved out in reverse by a script.
+The load-file has been largely implemented. Now there are two directions to go.~~ One is to write a mal language plugin for vscode (developed as a separate project, of course).~~ The other is to write a simple editor to implement a freeze-like method. Let the methods currently running in the kernel be written to a disk file and then saved out in reverse by a script.
 
 # Looking forward to you joining and improving the project
 
