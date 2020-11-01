@@ -1,0 +1,7 @@
+;;; the entry of junner os load module of lisp
+
+(def! load (lambda [name] (load-file (str name ".jmal"))))
+
+;; load core function
+(load "core")
+

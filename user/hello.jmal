@@ -1,0 +1,7 @@
+(+ 1 1)
+(def! say-hello (lambda [x]
+       (prn (str
+              "Hello "
+              x
+              "! this func load mal !" ))))
+;; 测试

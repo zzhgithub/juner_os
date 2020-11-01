@@ -1,0 +1,7 @@
+;;; core lib
+
+;; fun def defun!
+
+(defmacro! defun! (lambda [fun_name params body]
+    `(def! ~fun_name (lambda ~params ~body))))
+

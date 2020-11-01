@@ -314,6 +314,8 @@ fn mal() -> Vec<&'static str> {
         "(def! not (lambda (a) (if a false true)))",
         "(defmacro! cond (lambda (& xs) (if (> (count xs) 0) (list 'if (first xs) (if (> (count xs) 1) (nth xs 1) (throw \"odd number of forms to cond\")) (cons 'cond (rest (rest xs)))))))",
         "(def! load-file (lambda (f) (eval (read-string (str \"(do \" (read-file f) \"nil)\" )))))",
+        // 初始化时添加进入系统入口
+        "(load-file \"entry.jmal\")",
     ]
 }
 
