@@ -179,9 +179,9 @@ pub(crate) const IRQ0: u8 = 32;
 // IRQ
 pub const TIMER: u8 = 0;
 pub const KEYBOARD: u8 = 1;
+pub const PS2MOUSE: u8 = 12;
 //const COM2: u8 = 3;
 pub const COM1: u8 = 4;
 //const IDE: u8 = 14;
 //const Error: u8 = 19;
 //const Spurious: u8 = 31;
-
