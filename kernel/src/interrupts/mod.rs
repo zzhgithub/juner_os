@@ -1,4 +1,7 @@
-use crate::board::acpi_table::AcpiTable;
+use crate::board::{
+    acpi_table::AcpiTable,
+    mouse::{init_mouse, mouse},
+};
 use crate::memory::phys_to_virt;
 use alloc::boxed::Box;
 use alloc::vec::Vec;
@@ -27,8 +30,11 @@ pub fn init() {
     init_irq_table();
     irq_add_handle(KEYBOARD + IRQ0, Box::new(keyboard));
     irq_add_handle(COM1 + IRQ0, Box::new(com1));
+    irq_add_handle(PS2MOUSE + IRQ0, Box::new(mouse));
     irq_enable_raw(KEYBOARD, KEYBOARD + IRQ0);
     irq_enable_raw(COM1, COM1 + IRQ0);
+    init_mouse();
+    irq_enable_raw(PS2MOUSE, PS2MOUSE + IRQ0);
     crate::drivers::serial::COM1.lock().init();
     unsafe {
         // enable global page
