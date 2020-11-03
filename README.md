@@ -17,6 +17,7 @@ A lisp shell that can run interactive is now implemented. The subsequent goal is
 - The code can now be written in the user folder. It can be loaded using the laod-file method in the replica after kernel boot.
 - The kernel loads `entry.jaml` as an entry file.
 - The extension of the lisp dialect is `jmal` (Juner-os's Make A Lisp!).
+- Supports ps2 mouse. Just open the comments in kernel/src/board/mouse.rs.
 
 # dependencies
 
