@@ -17,6 +17,8 @@
 - 现在代码可以写在 user 文件夹下。在内核启动后的 repl 中可以使用 laod-file 方法进行加载。
 - 内核加载后会加载`entry.jaml`作为入口文件
 - lisp 方言的扩展名为`jmal`(Juner-os's Make A Lisp!)
+- 支持ps2鼠标。打开kernel/src/board/mouse.rs中的注释即可。
+
 
 # 依赖
 
